@@ -42,6 +42,11 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
+3. **Crea las variables de entorno:**
+- Crea un archivo `.env` en la ruta raiz del proyecto y configura las siguientes variables:
+    - `EMAIL` -> Correo electronico para el envio de notificaciones por email.
+    - `PASSWORD` -> La contraseña del correo electronico.
+
 3. **Instalar las dependencias:**
 
 ```bash
