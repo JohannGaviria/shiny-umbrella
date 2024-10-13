@@ -1,4 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 
 
-urlpatterns = []
+# Urls globales
+urlpatterns = [
+    path('api/', include('apps.users.urls')),
+]
