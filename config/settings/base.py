@@ -1,8 +1,23 @@
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+load_dotenv(Path.joinpath(BASE_DIR,'.env'))
+
+
+# Configuración para los correos de la  API
+DEFAULT_AUTO_FIELD = os.environ.get('EMAIL')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = DEFAULT_AUTO_FIELD
+EMAIL_HOST_PASSWORD = os.environ.get('PASSWORD')
 
 
 # Application definition
@@ -17,6 +32,8 @@ BASE_APPS = [
 
 LOCAL_APPS = [
     'apps.core',
+    'apps.users',
+    'apps.notification',
 ]
 
 THIRD_APPS = [
