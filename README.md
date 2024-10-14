@@ -12,6 +12,8 @@ Desarrollo de una API REST que permite a los usuarios crear y participar en encu
 ## Tabla de Contenidos
 
 - [Instalación](#instalación)
+- [Endpoints](#endpoints)
+    - [Usuarios](#usuarios)
 
 
 ## Instalación
@@ -68,3 +70,62 @@ python manage.py runserver --settings=config.settings.development
 ```
 
 ¡Listo! El proyecto ahora debería estar en funcionamiento en tu entorno local. Puedes acceder a él desde tu navegador web visitando `http://127.0.0.1:8000/`.
+
+## Endpoints
+
+### Usuarios
+
+| Nombre | Método | Url | Descripción |
+|:------ | :----- | :-- | :---------- |
+| [Registro de Usuarios](#registro-de-usuario) | `POST` | `/api/users/sign_up` | Registro de usuarios en el sistema. |
+
+#### Registro de usuario
+
+##### Método HTTP
+
+```http
+POST /api/users/sign_up
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `username` | `string` | **Requerido**. Nombre del usuario |
+| `email` | `string` | **Requerido**.  Correo electrónico del usuario |
+| `password` | `string` | **Requerido**. Contraseña del usuario |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+
+{
+    "username": "testUsername",
+    "email": "test@email.com",
+    "password": "testPassword"
+}
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{
+    "status": "success",
+    "message": "User registered successfully.",
+    "data": {
+        "token": {
+            "token_key": "b14407b771de4372bb3fd864a7d4b12884b8db09"
+        },
+        "user": {
+            "id": 14,
+            "username": "testUsername",
+            "email": "test@email.com",
+            "date_joined": "2024-10-14T00:12:52.125524Z"
+        }
+    }
+}
+```
