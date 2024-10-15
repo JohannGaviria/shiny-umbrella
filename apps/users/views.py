@@ -2,8 +2,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from django.utils import timezone
 from .serializers import UserValidationSerializer, UserResponseSerializer
 from apps.notification.utils import EmailNotification
+from datetime import timedelta
 
 
 # Endpoint for user registration
@@ -55,10 +58,44 @@ def sign_up(request):
 # Endpoint for user login
 @api_view(['POST'])
 def sign_in(request):
+    # Obtiene los datos del usuario
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    # Auntentica al usuario
+    user = authenticate(request, username=username, password=password)
+
+    # Verifica la autenticación del usuario
+    if user is None:
+        # Respuesta erronea desde el endpoint
+        return Response({
+            'status': 'error',
+            'message': 'Authentication failed.',
+            'errors': {
+                'non_field_errors': ['Invalid username or password']
+            }
+        }, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Crea o actualiza el token del usuario
+    token, created = Token.objects.get_or_create(user=user)
+
+    # Configura el tiempo de expiración del token
+    token_expiration = timezone.now() + timedelta(days=3)
+
+    # Serializa los datos del usuario
+    user_response_serializer = UserResponseSerializer(user)
+
     # Respuesta exitosa desde el endpoint
     return Response({
         'status': 'success',
-        'message': 'User logged in successfully.'
+        'message': 'User logged in successfully.',
+        'data': {
+            'token': {
+                'token_key': token.key,
+                'token_expiration': token_expiration.isoformat()
+            },
+            'user': user_response_serializer.data
+        }
     }, status=status.HTTP_200_OK)
 
 
