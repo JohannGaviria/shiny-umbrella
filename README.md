@@ -79,6 +79,7 @@ python manage.py runserver --settings=config.settings.development
 |:------ | :----- | :-- | :---------- |
 | [Registro de Usuarios](#registro-de-usuario) | `POST` | `/api/users/sign_up` | Registro de usuarios en el sistema. |
 | [Inicio de Sesión de Usuarios](#inicio-de-sesión-de-usuario) | `POST` | `/api/users/sign_in` | Inicio de sesión de los usuarios en el sistema. |
+| [Cierre de Sesión de Usuarios](#cierre-de-sesión-de-usuario) | `POST` | `/api/users/sign_out` | Cierre de sesión de los usuarios en el sistema. |
 
 #### Registro de usuario
 
@@ -178,5 +179,38 @@ Content-Type: application/json
             "date_joined": "2024-10-14T00:12:52.125524Z"
         }
     }
+}
+```
+
+#### Cierre de sesión de usuario
+
+##### Método HTTP
+
+```http
+POST /api/users/sign_out
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `Token` | `string` | **Requerido**. Token de autenticación |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+    "status": "success",
+    "message": "User logged out successfully."
 }
 ```
