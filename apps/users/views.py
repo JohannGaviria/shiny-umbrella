@@ -1,4 +1,6 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -101,7 +103,12 @@ def sign_in(request):
 
 # Endpoint for user logout
 @api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def sign_out(request):
+    # Elimina el token del usuario autenticado
+    request.user.auth_token.delete()
+    
     # Respuesta exitosa desde el endpoint
     return Response({
         'status': 'success',
