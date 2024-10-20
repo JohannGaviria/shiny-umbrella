@@ -80,6 +80,7 @@ python manage.py runserver --settings=config.settings.development
 | [Registro de Usuarios](#registro-de-usuario) | `POST` | `/api/users/sign_up` | Registro de usuarios en el sistema. |
 | [Inicio de Sesión de Usuarios](#inicio-de-sesión-de-usuario) | `POST` | `/api/users/sign_in` | Inicio de sesión de los usuarios en el sistema. |
 | [Cierre de Sesión de Usuarios](#cierre-de-sesión-de-usuario) | `POST` | `/api/users/sign_out` | Cierre de sesión de los usuarios en el sistema. |
+| [Actualización de Usuarios](#actualización-del-usuario) | `PUT` | `/api/users/update_user` | Actualizar la información del perfil del usuario. |
 
 #### Registro de usuario
 
@@ -212,5 +213,61 @@ Content-Type: application/json
 {
     "status": "success",
     "message": "User logged out successfully."
+}
+```
+
+#### Actualización del usuario
+
+##### Método HTTP
+
+```http
+PUT /api/users/update_user
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `Token` | `string` | **Requerido**. Token de autenticación |
+| `username` | `string` | **Requerido**. Nombre del usuario |
+| `email` | `string` | **Requerido**.  Correo electrónico del usuario |
+| `current_password` | `string` | Contraseña actual del usuario |
+| `new_password` | `string`	| Nueva contraseña del usuario |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+
+{
+    "username": "TestNewUsername",
+    "email": "testnew@email.com",
+    "current_password": "TestPassword",
+    "new_password": "TestNewPassword"
+}
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+    "status": "success",
+    "message": "User profile updated successfully.",
+    "data": {
+        "token": {
+            "token_key": "42b1c149a8e85094bd47123746fef49b8b1a6b6a",
+            "token_expiration": "2024-10-23T23:52:42.931684+00:00"
+        },
+        "user": {
+            "id": 1,
+            "username": "TestNewUsername",
+            "email": "testnew@email.com",
+            "date_joined": "2024-10-20T23:16:47.695682Z"
+        }
+    }
 }
 ```
