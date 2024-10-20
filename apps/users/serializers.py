@@ -53,6 +53,7 @@ class UserResponseSerializer(serializers.ModelSerializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
     current_password = serializers.CharField(write_only=True, required=False)
     new_password = serializers.CharField(write_only=True, required=False)
 
@@ -70,7 +71,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         return value
     
 
-    def validate_password(self, attrs):
+    def validate(self, attrs):
         """
         Valida los atributos proporcionados para cambiar la contraseña de un usuario.
         """
@@ -115,6 +116,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     'new_password': e.messages
                 })
+        return attrs
 
 
     def update(self, instance, validated_data):

@@ -118,9 +118,14 @@ def sign_out(request):
 
 # Endpoint for updating user profile
 @api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def update_user(request):
+    # Obtiene el usuario autenticado
+    user = request.user
+    
     # Serializa los datos
-    user_update_serializer = UserUpdateSerializer(user=request.user, data=request.data, partial=True)
+    user_update_serializer = UserUpdateSerializer(user, data=request.data, partial=True)
 
     # Verifica que los datos sean validos
     if user_update_serializer.is_valid():
