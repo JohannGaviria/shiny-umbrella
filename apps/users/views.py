@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from django.utils import timezone
-from .serializers import UserValidationSerializer, UserResponseSerializer
+from .serializers import UserValidationSerializer, UserResponseSerializer, UserUpdateSerializer
 from apps.notification.utils import EmailNotification
 from datetime import timedelta
 
@@ -118,12 +118,51 @@ def sign_out(request):
 
 # Endpoint for updating user profile
 @api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def update_user(request):
-    # Respuesta exitosa desde el endpoint
+    # Obtiene el usuario autenticado
+    user = request.user
+    
+    # Serializa los datos
+    user_update_serializer = UserUpdateSerializer(user, data=request.data, partial=True)
+
+    # Verifica que los datos sean validos
+    if user_update_serializer.is_valid():
+        # Guarda los cambios del usuario
+        user = user_update_serializer.save()
+
+        # Elimina el token del usuario autenticado
+        request.user.auth_token.delete()
+        
+        # Crea o actualiza el token del usuario
+        token, created = Token.objects.get_or_create(user=user)
+
+        # Configura el tiempo de expiración del token
+        token_expiration = timezone.now() + timedelta(days=3)
+
+        # Serializa los datos del usuario
+        user_response_serializer = UserResponseSerializer(user)
+
+        # Respuesta exitosa desde el endpoint
+        return Response({
+            'status': 'success',
+            'message': 'User profile updated successfully.',
+            'data': {
+                'token': {
+                    'token_key': token.key,
+                    'token_expiration': token_expiration.isoformat()
+                },
+                'user': user_response_serializer.data
+            }
+        }, status=status.HTTP_200_OK)
+    
+    # Respuesta erronea desde el endpoint
     return Response({
-        'status': 'success',
-        'message': 'User profile updated successfully.'
-    }, status=status.HTTP_200_OK)
+        'status': 'error',
+        'message': 'Errors in data validation.',
+        'errors': user_update_serializer.errors
+    }, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Endpoint for deleting user
