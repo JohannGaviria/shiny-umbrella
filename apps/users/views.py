@@ -167,9 +167,25 @@ def update_user(request):
 
 # Endpoint for deleting user
 @api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def delete_user(request):
-    # Respuesta exitosa desde el endpoint
-    return Response({
-        'status': 'success',
-        'message': 'User deleted successfully.'
-    }, status=status.HTTP_200_OK)
+    try:
+        # Elimina el token del usuario autenticado
+        request.user.auth_token.delete()
+
+        # Elimina el usuario autenticado
+        request.user.delete()
+
+        # Respuesta exitosa desde el endpoint
+        return Response({
+            'status': 'success',
+            'message': 'User deleted successfully.'
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        # Respuesta erronea desde el endpoint
+        return Response({
+            'status': 'error',
+            'message': 'Error deleting user.',
+            'errors': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
