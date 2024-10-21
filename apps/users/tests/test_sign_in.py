@@ -10,14 +10,14 @@ class LoginTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.url = reverse('sign_in')
-        user = User.objects.create(
+        self.user = User.objects.create(
             username='TestUsername',
             email='test@email.com'
         )
-        user.set_password('TestPassword')
-        user.save()
+        self.user.set_password('TestPassword')
+        self.user.save()
         self.data = {
-            'username': 'TestUsername',
+            'email': 'test@email.com',
             'password': 'TestPassword'
         }
 
@@ -31,12 +31,31 @@ class LoginTestCase(TestCase):
         self.assertTrue('data' in response.data)
 
 
-    # Prueba de inicio de sesión de usuario inválido
-    def test_sign_in_user_invalid_email(self):
-        self.data['username'] = 'incorrectUsername'
+    # Prueba de inicio de sesión de usuario con email inválido
+    def test_sign_in_user_with_invalid_email(self):
+        self.data['email'] = 'incorrect@email.com'
+        response = self.client.post(self.url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertTrue('status' in response.data)
+        self.assertTrue('message' in response.data)
+        self.assertTrue('errors' in response.data)
+
+    
+    # Prueba de inicio de sesión de usuario con contraseña inválida
+    def test_sign_in_user_with_invalid_password(self):
         self.data['password'] = 'incorrectPassword'
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertTrue('status' in response.data)
         self.assertTrue('message' in response.data)
         self.assertTrue('errors' in response.data)
+
+
+    # Prueba de inicio de sesión para usuario inactivo
+    def test_sign_in_user_inactive(self):
+        self.user.is_active = False
+        self.user.save()
+        response = self.client.post(self.url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue('status' in response.data)
+        self.assertTrue('message' in response.data)

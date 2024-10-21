@@ -9,6 +9,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 load_dotenv(Path.joinpath(BASE_DIR,'.env'))
 
+SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT')
+
+FRONTEND_URL = os.environ.get('FRONTEND_URL')
 
 # Configuración para los correos de la  API
 DEFAULT_AUTO_FIELD = os.environ.get('EMAIL')
