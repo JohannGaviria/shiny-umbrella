@@ -81,6 +81,7 @@ python manage.py runserver --settings=config.settings.development
 | [Inicio de Sesión de Usuarios](#inicio-de-sesión-de-usuario) | `POST` | `/api/users/sign_in` | Inicio de sesión de los usuarios en el sistema. |
 | [Cierre de Sesión de Usuarios](#cierre-de-sesión-de-usuario) | `POST` | `/api/users/sign_out` | Cierre de sesión de los usuarios en el sistema. |
 | [Actualización de Usuarios](#actualización-del-usuario) | `PUT` | `/api/users/update_user` | Actualizar la información del perfil del usuario. |
+| [Eliminación de Usuarios](#eliminación-del-usuario) | `DELETE` | `/api/users/delete_user` | Eliminar el usuario actual. |
 
 #### Registro de usuario
 
@@ -269,5 +270,38 @@ Content-Type: application/json
             "date_joined": "2024-10-20T23:16:47.695682Z"
         }
     }
+}
+```
+
+#### Eliminación del usuario
+
+##### Método HTTP
+
+```http
+DELETE /api/users/delete_user
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `Token` | `string` | **Requerido**. Token de autenticación |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+    "status": "success",
+    "message": "User deleted successfully."
 }
 ```
