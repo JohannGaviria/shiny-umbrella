@@ -5,6 +5,7 @@ from . import views
 # Urls para los endpoint de users
 urlpatterns = [
     path('users/sign_up', views.sign_up, name='sign_up'),
+    path('users/verify/<str:token_email>', views.verify_email, name='verify_email'),
     path('users/sign_in', views.sign_in, name='sign_in'),
     path('users/sign_out', views.sign_out, name='sign_out'),
     path('users/update_user', views.update_user, name='update_user'),
