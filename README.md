@@ -48,6 +48,8 @@ source venv/bin/activate
 - Crea un archivo `.env` en la ruta raiz del proyecto y configura las siguientes variables:
     - `EMAIL` -> Correo electronico para el envio de notificaciones por email.
     - `PASSWORD` -> La contraseña del correo electronico.
+    - `SECURITY_PASSWORD_SALT` -> Contraseña segura para que el módulo itsdangerous pueda generar y verificar tokens de forma segura.
+    - `FRONTEND_URL` -> Generar la URL de verificación que se enviará por correo electrónico.
 
 3. **Instalar las dependencias:**
 
@@ -78,6 +80,7 @@ python manage.py runserver --settings=config.settings.development
 | Nombre | Método | Url | Descripción |
 |:------ | :----- | :-- | :---------- |
 | [Registro de Usuarios](#registro-de-usuario) | `POST` | `/api/users/sign_up` | Registro de usuarios en el sistema. |
+| [Verificación de Correo Electronico de Usuarios](#verificación-del-correo-electronico-del-usuario) | `GET` | `/api/users/verify/<str:token_email>` | Verificación del correo electronico del usuario. |
 | [Inicio de Sesión de Usuarios](#inicio-de-sesión-de-usuario) | `POST` | `/api/users/sign_in` | Inicio de sesión de los usuarios en el sistema. |
 | [Cierre de Sesión de Usuarios](#cierre-de-sesión-de-usuario) | `POST` | `/api/users/sign_out` | Cierre de sesión de los usuarios en el sistema. |
 | [Actualización de Usuarios](#actualización-del-usuario) | `PUT` | `/api/users/update_user` | Actualizar la información del perfil del usuario. |
@@ -134,6 +137,40 @@ Content-Type: application/json
 }
 ```
 
+#### Verificación del correo electronico del usuario
+
+##### Método HTTP
+
+```http
+GET /api/users/verify/<str:token_email>
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token_email` | `string` | **Requerido**.  Token de email de verificación |
+
+> **NOTA**: El `token_email` lo consigue en la bandeja de mensajes de su correo electronico agregado a la hora de registrarse
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json  
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+    "status": "success",
+    "message": "Email verified successfully."
+}
+```
+
 #### Inicio de sesión de usuario
 
 ##### Método HTTP
@@ -146,7 +183,7 @@ POST /api/users/sign_in
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `username` | `string` | **Requerido**. Nombre del usuario |
+| `email` | `string` | **Requerido**. Correo electronico del usuario |
 | `password` | `string` | **Requerido**. Contraseña del usuario |
 
 ##### Ejemplo de solicitud
@@ -155,7 +192,7 @@ POST /api/users/sign_in
 Content-Type: application/json
 
 {
-    "username": "testUsername",
+    "email": "test@email.com",
     "password": "testPassword"
 }
 ```
