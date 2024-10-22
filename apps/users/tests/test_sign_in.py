@@ -5,8 +5,8 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 
 
-# Tests para el inicio de sesión
-class LoginTestCase(TestCase):
+# Tests para el inicio de sesión de usuario
+class SignInTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.url = reverse('sign_in')
@@ -22,8 +22,10 @@ class LoginTestCase(TestCase):
         }
 
 
-    # Prueba de inicio de sesión de usuario exitoso
     def test_sign_in_user_successful(self):
+        """
+        Prueba de inicio de sesión de usuario exitoso.
+        """
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('status' in response.data)
@@ -31,8 +33,10 @@ class LoginTestCase(TestCase):
         self.assertTrue('data' in response.data)
 
 
-    # Prueba de inicio de sesión de usuario con email inválido
     def test_sign_in_user_with_invalid_email(self):
+        """
+        Prueba de inicio de sesión de usuario con email inválido.
+        """
         self.data['email'] = 'incorrect@email.com'
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -41,8 +45,10 @@ class LoginTestCase(TestCase):
         self.assertTrue('errors' in response.data)
 
     
-    # Prueba de inicio de sesión de usuario con contraseña inválida
     def test_sign_in_user_with_invalid_password(self):
+        """
+        Prueba de inicio de sesión de usuario con contraseña inválida.
+        """
         self.data['password'] = 'incorrectPassword'
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -51,8 +57,10 @@ class LoginTestCase(TestCase):
         self.assertTrue('errors' in response.data)
 
 
-    # Prueba de inicio de sesión para usuario inactivo
     def test_sign_in_user_inactive(self):
+        """
+        Prueba de inicio de sesión para usuario inactivo.
+        """
         self.user.is_active = False
         self.user.save()
         response = self.client.post(self.url, self.data, format='json')

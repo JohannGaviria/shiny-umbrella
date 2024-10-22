@@ -32,8 +32,10 @@ class UpdateUserTestCase(TestCase):
         self.client.force_authenticate(user=self.user)
 
 
-    # Prueba de actualización de usuario exitoso
     def test_update_user_successful(self):
+        """
+        Prueba de actualización de usuario exitoso.
+        """
         response = self.client.put(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('status' in response.data)
@@ -41,8 +43,10 @@ class UpdateUserTestCase(TestCase):
         self.assertTrue('data' in response.data)
 
 
-    # Prueba de actualización de usuario con datos inválidos
     def test_update_user_invalid_data(self):
+        """
+        Prueba de actualización de usuario con datos inválidos.
+        """
         self.data['username'] = ''
         self.data['email'] = ''
         response = self.client.put(self.url, self.data, format='json')
@@ -52,8 +56,10 @@ class UpdateUserTestCase(TestCase):
         self.assertTrue('errors' in response.data)
 
 
-    # Prueba de actualización de usuario con nombre de usuario existente
     def test_update_user_existing_username(self):
+        """
+        Prueba de actualización de usuario con nombre de usuario existente.
+        """
         self.data['username'] = 'TestExistingUsername'
         response = self.client.put(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -62,8 +68,10 @@ class UpdateUserTestCase(TestCase):
         self.assertTrue('errors' in response.data)
 
 
-    # Prueba de actualización de usuario con correo electrónico existente
     def test_update_user_existing_email(self):
+        """
+        Prueba de actualización de usuario con correo electrónico existente.
+        """
         self.data['email'] = 'testexisting@email.com'
         response = self.client.put(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -72,8 +80,10 @@ class UpdateUserTestCase(TestCase):
         self.assertTrue('errors' in response.data)
 
     
-    # Prueba de actualización de usuario con contraseña poco segura
-    def test_update_user_password_no_secure(self):
+    def test_update_user_whit_weak_password(self):
+        """
+        Prueba de actualización de usuario con contraseña debil.
+        """
         self.data['new_password'] = '123'
         response = self.client.put(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -82,8 +92,10 @@ class UpdateUserTestCase(TestCase):
         self.assertTrue('errors' in response.data)
 
 
-    # Prueba de actualización de usuario sin token
     def test_update_user_without_token(self):
+        """
+        Prueba de actualización de usuario sin token.
+        """
         self.client.force_authenticate(user=None)
         response = self.client.put(self.url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
