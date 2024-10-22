@@ -1,5 +1,5 @@
-from itsdangerous import URLSafeTimedSerializer
 from django.conf import settings
+from itsdangerous import URLSafeTimedSerializer
 
 
 def generate_verification_token(email):

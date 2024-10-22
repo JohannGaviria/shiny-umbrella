@@ -10,9 +10,10 @@ class EmailNotification:
         self.recipient_list = recipient_list
         self.sender = settings.EMAIL_HOST_USER
 
+
     def send(self, fail_silently=False):
         """
-        Envía el correo electrónico usando los parámetros proporcionados.
+        Envía el mensaje al correo electrónico usando los parámetros proporcionados.
         """
         send_mail(
             self.subject,
