@@ -22,8 +22,10 @@ class SignUpTestCase(TestCase):
         }
 
 
-    # Prueba de registro de usuario exitoso
     def test_sign_up_user_successful(self):
+        """
+        Prueba de registro de usuario exitoso.
+        """
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue('status' in response.data)
@@ -31,8 +33,10 @@ class SignUpTestCase(TestCase):
         self.assertTrue('data' in response.data)
 
 
-    # Prueba de registro de usuario con datos inválidos
     def test_sign_up_user_invalid_data(self):
+        """
+        Prueba de registro de usuario con datos inválidos.
+        """
         response = self.client.post(self.url, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertTrue('status' in response.data)
@@ -40,8 +44,10 @@ class SignUpTestCase(TestCase):
         self.assertTrue('errors' in response.data)
 
 
-    # Prueba de registro de usuario con nombre de usuario existente
     def test_sign_up_user_existing_username(self):
+        """
+        Prueba de registro de usuario con nombre de usuario existente.
+        """
         self.data['username'] = 'TestExistingUsername'
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -50,8 +56,10 @@ class SignUpTestCase(TestCase):
         self.assertTrue('errors' in response.data)
 
 
-    # Prueba de registro de usuario con correo electrónico existente
     def test_sign_up_user_existing_email(self):
+        """
+        Prueba de registro de usuario con correo electrónico existente.
+        """
         self.data['email'] = 'testexisting@email.com'
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -60,8 +68,10 @@ class SignUpTestCase(TestCase):
         self.assertTrue('errors' in response.data)
 
     
-    # Prueba de registro de usuario con contraseña poco segura
-    def test_sign_up_user_password_no_secure(self):
+    def test_sign_up_user_whit_weak_password(self):
+        """
+        Prueba de registro de usuario con contraseña debil.
+        """
         self.data['password'] = '123'
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

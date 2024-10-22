@@ -21,16 +21,20 @@ class DeleteUserTestCase(TestCase):
         self.client.force_authenticate(user=self.user)
 
 
-    # Prueba de eliminación de perfil exitosa
-    def test_delete_profile_successful(self):
+    def test_delete_user_successful(self):
+        """
+        Prueba de eliminación de usuario exitosa.
+        """
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('status' in response.data)
         self.assertTrue('message' in response.data)
 
 
-    # Prueba de eliminación de perfil sin token
-    def test_delete_profile_without_token(self):
+    def test_delete_user_without_token(self):
+        """
+        Prueba de eliminación de usuario sin token.
+        """
         self.client.force_authenticate(user=None)
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

@@ -22,16 +22,20 @@ class VerifyEmailTestCase(TestCase):
         self.url = reverse('verify_email', args=[self.token])
 
 
-    # Prueba de verificación de email exitoso
     def test_verify_email_successful(self):
+        """
+        Prueba de verificación de email exitoso.
+        """
         response = self.client.get(self.url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('status' in response.data)
         self.assertTrue('message' in response.data)
 
 
-    # Prueba de verificación con token inválido
     def test_verify_email_invalid_token(self):
+        """
+        Prueba de verificación con token inválido.
+        """
         self.url = reverse('verify_email', args=['invalid_token_string'])
         response = self.client.get(self.url, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -39,8 +43,10 @@ class VerifyEmailTestCase(TestCase):
         self.assertTrue('message' in response.data)
 
 
-    # Prueba de verificación cuando el email ya ha sido verificado
     def test_verify_email_already_verified(self):
+        """
+        Prueba de verificación cuando el email ya ha sido verificado.
+        """
         self.verify_account.email_verified = True
         self.verify_account.save()
         response = self.client.get(self.url, format='json')
@@ -49,8 +55,10 @@ class VerifyEmailTestCase(TestCase):
         self.assertTrue('message' in response.data)
 
 
-    # Prueba de verificación para un usuario que no existe
     def test_verify_email_user_not_found(self):
+        """
+        Prueba de verificación para un usuario que no existe.
+        """
         self.user.delete()
         response = self.client.get(self.url, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -58,8 +66,10 @@ class VerifyEmailTestCase(TestCase):
         self.assertTrue('message' in response.data)
 
 
-    # Prueba de verificación para una cuenta de verificación que no existe
     def test_verify_email_verification_account_not_found(self):
+        """
+        Prueba de verificación para una cuenta de verificación que no existe.
+        """
         self.verify_account.delete()
         response = self.client.get(self.url, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
