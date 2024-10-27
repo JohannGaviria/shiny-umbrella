@@ -1,11 +1,15 @@
 asgiref==3.8.1
 Django==5.1.2
 djangorestframework==3.15.2
+Faker==30.8.1
 gunicorn==23.0.0
 itsdangerous==2.2.0
 packaging==24.1
 psycopg2==2.9.9
+python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
+six==1.16.0
 sqlparse==0.5.1
+typing_extensions==4.12.2
 tzdata==2024.2
 whitenoise==6.7.0
