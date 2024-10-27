@@ -14,6 +14,7 @@ Desarrollo de una API REST que permite a los usuarios crear y participar en encu
 - [Instalación](#instalación)
 - [Endpoints](#endpoints)
     - [Usuarios](#usuarios)
+    - [Encuestas](#encuestas)
 
 
 ## Instalación
@@ -340,5 +341,77 @@ Content-Type: application/json
 {
     "status": "success",
     "message": "User deleted successfully."
+}
+```
+
+### Encuestas
+
+| Nombre | Método | Url | Descripción |
+|:------ | :----- | :-- | :---------- |
+| [Crear cuenta](#crear-encuesta) | `POST` | `/api/surveys/create` | Crea una nueva encuesta. |
+
+#### Crear encuesta
+
+##### Método HTTP
+
+```http
+POST /api/surveys/create
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
+| `title` | `string` | **Requerido**.  Titulo de la encuesta |
+| `description` | `string` | Descripcion de la encuesta |
+| `end_date` | `datetime` | **Requerido**.  Fecha de finalización de la encuesta |
+| `is_public` | `bool` | Visibilidad de la encuesta |
+
+> **NOTA**: El parámetro `is_public` acepta los siguientes valores:
+>
+> - **true**: Indica que la encuesta es pública.
+> - **false**: Indica que la encuesta es privada.
+> - **null**: El campo tomaria por defecto la propiedad `false`.
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+
+{
+    "title": "Title of the surveys",
+    "description": "Description of the surveys.",
+    "end_date": "2024-10-29 21:39:50.764361",
+    "is_public": true
+}
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+    "status": "success",
+    "message": "Survey created successfully.",
+    "data": {
+        "survey": {
+            "id": "d17b70e6-6eae-44e5-ac0b-a6d3172731d4",
+            "user": {
+                "id": 1,
+                "username": "TestUsername",
+                "email": "test@email.com",
+                "date_joined": "2024-10-27T02:50:03.043432Z"
+            },
+            "title": "Title of the surveys",
+            "description": "Description of the surveys.",
+            "start_date": "2024-10-27T21:39:50.764361Z",
+            "end_date": "2024-10-29 21:39:50.764361",
+            "is_public": true
+        }
+    }
 }
 ```
