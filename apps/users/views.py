@@ -32,8 +32,8 @@ def sign_up(request):
     # Guarda al nuevo usuario
     user = user_validation_serializer.save()
 
-    # Crea el registro de verificación del usuario
-    VerifyAccount.objects.create(user=user)
+    # Crea o obtiene el registro de verificación del usuario
+    verify_account, created = VerifyAccount.objects.get_or_create(user=user)
 
     # Desactiva la cuenta del usuario hasta su verificación
     user.is_active = False
@@ -245,12 +245,16 @@ def update_user(request):
     # Guarda los cambios del usuario
     user = user_update_serializer.save()
 
-    # Crea el registro de verificación del usuario
-    VerifyAccount.objects.create(user=user)
-
     # Desactiva la cuenta del usuario hasta su verificación
     user.is_active = False
     user.save()
+
+    # Crea o obtiene el registro de verificación del usuario
+    verify_account, created = VerifyAccount.objects.get_or_create(user=user)
+
+    # Reinicia el estado de verificación del correo electrónico del usuario
+    verify_account.email_verified = False
+    verify_account.save()
 
     # Crea un token para la verifiación del correo electrónico
     token_email = generate_verification_token(user.email)
