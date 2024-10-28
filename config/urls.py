@@ -6,4 +6,5 @@ from django.conf.urls.static import static
 # Urls globales
 urlpatterns = [
     path('api/', include('apps.users.urls')),
+    path('api/', include('apps.surveys.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
