@@ -119,6 +119,18 @@ class SurveyCreateTests(TestCase):
         self.assertTrue('errors' in response.data)
 
 
+    def test_create_survey_start_date_in_past(self):
+        """
+        Prueba de crear una encuesta si start_date es una fecha pasada.
+        """
+        self.data['start_date'] = datetime.now() - timedelta(days=1)
+        response = self.client.post(self.url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('status' in response.data)
+        self.assertTrue('message' in response.data)
+        self.assertTrue('errors' in response.data)
+
+
     def test_create_survey_end_date_before_start_date(self):
         """
         Prueba de crear una encuesta si end_date es anterior a start_date.
@@ -131,6 +143,38 @@ class SurveyCreateTests(TestCase):
         self.assertTrue('message' in response.data)
         self.assertTrue('errors' in response.data)
 
+
+    def test_create_survey_with_multiple_choice_question_without_enough_options(self):
+        """
+        Prueba de crear encuesta con pregunta de opción múltiple sin suficientes opciones.
+        """
+        self.data['asks'] = [{
+            'text': '¿Cuál es tu color favorito?',
+            'type': 'multiple',
+            'options': [{'text': 'Rojo'}]
+        }]
+        response = self.client.post(self.url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('status' in response.data)
+        self.assertTrue('message' in response.data)
+        self.assertTrue('errors' in response.data)
+
+
+    def test_create_survey_with_short_question_with_options(self):
+        """
+        Prueba de crear encuesta con pregunta corta que tiene opciones.
+        """
+        self.data['asks'] = [{
+            'text': '¿Cuál es tu nombre?',
+            'type': 'short',
+            'options': [{'text': 'N/A'}]
+        }]
+        response = self.client.post(self.url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('status' in response.data)
+        self.assertTrue('message' in response.data)
+        self.assertTrue('errors' in response.data)
+    
 
     def test_create_survey_without_token(self):
         """
