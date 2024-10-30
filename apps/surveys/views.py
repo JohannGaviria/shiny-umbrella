@@ -4,7 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
+from django.db.models import Q
 from .serializers import SurveyValidationSerializer, SurveyResponseSerializer
+from .models import Survey
 from apps.notification.utils import EmailNotification
 
 
@@ -29,7 +31,7 @@ def create_survey(request):
     survey = survey_validation_serializer.save()
 
     # Crea la url para ver la encuesta
-    url = f'{settings.FRONTEND_URL}/api/surveys/{survey.id}'
+    url = f'{settings.FRONTEND_URL}/api/surveys/get/{survey.id}'
 
     # Crea el mensaje de notificacion al crear la encuesta
     subject = f'Survey Created: "{survey.title}"'
@@ -52,3 +54,40 @@ def create_survey(request):
         }
     }, status=status.HTTP_201_CREATED)
 
+
+# Endpoint para obtener una encuesta por ID
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_survey_id(request, survey_id):
+    try:
+        # Obtiene la encuesta mediante su ID
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea a no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    # Verifica que la encuesta sea privada
+    if not survey.is_public:
+        # Verifica que el usuario no sea creador
+        if survey.user != request.user:
+            # Respuesta erronea al usuario no ser el creador
+            return Response({
+                'status': 'error',
+                'message': 'The user is not the creator of the survey.'
+            }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Serializa los datos de la encuesta
+    survey_response_serializer = SurveyResponseSerializer(survey)
+
+    # Respuesta exitosa al obtener una encuesta
+    return Response({
+        'status': 'success',
+        'message': 'Survey successfully obtained.',
+        'data': {
+            'survey': survey_response_serializer.data
+        }
+    }, status=status.HTTP_200_OK)
