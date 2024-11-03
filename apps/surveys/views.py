@@ -91,3 +91,24 @@ def get_survey_id(request, survey_id):
             'survey': survey_response_serializer.data
         }
     }, status=status.HTTP_200_OK)
+
+
+# Endpoint para obtener todas las encuestas
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_all_surveys(request):
+    # Obtiene todas las encuestas
+    surveys = Survey.objects.all()
+    
+    # Serializa los datos de respuesta de la encusta
+    survey_response_serializer = SurveyResponseSerializer(surveys, many=True)
+
+    # Respuesta exitosa al obtener las encuestas
+    return Response({
+        'status': 'success',
+        'message': 'Surveys successfully obtained.',
+        'data': {
+            'surveys': survey_response_serializer.data
+        }
+    }, status=status.HTTP_200_OK)
