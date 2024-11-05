@@ -351,7 +351,7 @@ Content-Type: application/json
 | [Crear encuesta](#crear-encuesta) | `POST` | `/api/surveys/create` | Crea una nueva encuesta. |
 | [Obtener una encuesta por ID](#obtener-encuesta-por-id) | `GET` | `/api/surveys/get/<str:survey_id>` | Obtiene una encuesta mediante su ID. |
 | [Obtener todas las encuestas](#obtener-todas-las-encuesta) | `GET` | `/api/surveys/get_all` | Obtiene todas las encuestas. |
-| [Buscar encuestas](#buscar-encuesta) | `GET` | `/api/surveys/search_surveys?query=<search_value>` | Busca las encuestas. |
+| [Buscar encuestas](#buscar-encuesta) | `GET` | `/api/surveys/search_surveys?query=<search_value>&page_size=<size_value>&page=<page_value>` | Busca las encuestas. |
 
 #### Crear encuesta
 
@@ -650,7 +650,7 @@ Content-Type: application/json
 ##### Método HTTP
 
 ```http
-GET /api/surveys/search_surveys?query=<search_value>
+GET /api/surveys/search_surveys?query=<search_value>&page_size=<size_value>&page=<page_value>
 ```
 
 ##### Parámetros
@@ -659,12 +659,21 @@ GET /api/surveys/search_surveys?query=<search_value>
 | :-------- | :------- | :------------------------- |
 | `token` | `string` | **Requerido**.  Token de autenticación |
 | `search_value` | `string` | Valor del párametro de búsqueda |
+| `size_value` | `int` | Valor del tamaño de elementos por página |
+| `page_value` | `int` | Valor de la página para navegar entre la paginación |
 
 > **NOTA**: El parámetro `search_value` Busca encuestas por:
 >
 > - **title**: Titulo de la encuesta.
 > - **description**: Descripcion de la encuesta.
 > - **user**: Usuario creador de la encuesta.
+
+> **NOTA**: Si los parámetros `page_size` y `page` no se incluyen en la URL, se aplicarán valores por defecto:
+>
+> - **Ejemplo**: `GET /api/surveys/search_surveys?query=<search_value>`
+>   - **page_size** será `10`, lo que significa que se mostrarán 10 elementos por página.
+>   - **page** será `1`, comenzando en la primera página de la paginación.
+> - **Recomendación**: Para navegar entre las páginas, debe incluir el parámetro page e indicar el número de la página a la que desea acceder.
 
 ##### Ejemplo de solicitud
 
@@ -683,6 +692,14 @@ Content-Type: application/json
     "status": "success",
     "message": "Searching for surveys successfully.",
     "data": {
+        "page_info": {
+            "count": 21,
+            "page_size": 5,
+            "links": {
+                "next": "http://127.0.0.1:8000/api/surveys/search_survey?page=2&page_size=5&query="Title of the",
+                "previous": null
+            }
+        },
         "surveys": [
             {
                 "title": "Title of the surveys",
