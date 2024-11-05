@@ -8,6 +8,8 @@ from django.db.models import Q
 from .serializers import SurveyValidationSerializer, SurveyResponseSerializer
 from .models import Survey
 from apps.notification.utils import EmailNotification
+from apps.core.utils import CustomPageNumberPagination
+from config.settings.base import REST_FRAMEWORK
 
 
 # Endpoint para crear una encuesta
@@ -135,16 +137,28 @@ def search_surveys(request):
         Q(title__icontains=query) |
         Q(description__icontains=query) |
         Q(user__username__icontains=query)
-    )
+    ).order_by('id')
+
+    # Crea la paginación de los datos obtenidos
+    paginator = CustomPageNumberPagination()
+    paginated_queryset = paginator.paginate_queryset(surveys, request)
 
     # Serializa los datos de las encuestas
-    survey_response_serializer = SurveyResponseSerializer(surveys, many=True)
+    survey_response_serializer = SurveyResponseSerializer(paginated_queryset, many=True)
+
+    # Obtiene la respuesta con los datos paginados
+    response_data = paginator.get_paginated_response(survey_response_serializer.data)
 
     # Respuesta de exito a buscar las encuestas
     return Response({
         'status': 'success',
         'message': 'Searching for surveys successfully.',
         'data': {
-            'surveys': survey_response_serializer.data
+            'page_info': {
+                'count': response_data.data['count'],
+                'page_size': request.query_params.get('page_size', REST_FRAMEWORK['PAGE_SIZE']),
+                'links': response_data.data['links']
+            },
+            'surveys': response_data.data['results']
         }
     }, status=status.HTTP_200_OK)
