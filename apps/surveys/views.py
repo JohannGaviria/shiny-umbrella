@@ -156,7 +156,7 @@ def search_surveys(request):
         'data': {
             'page_info': {
                 'count': response_data.data['count'],
-                'page_size': request.query_params.get('page_size', REST_FRAMEWORK['PAGE_SIZE']),
+                'page_size': int(request.query_params.get('page_size', REST_FRAMEWORK['PAGE_SIZE'])),
                 'links': response_data.data['links']
             },
             'surveys': response_data.data['results']
