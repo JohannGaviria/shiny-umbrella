@@ -36,7 +36,7 @@ class GetAllSurveysTestsCase(TestCase):
         )
 
     
-    def test_all_survey_successful(self):
+    def test_get_all_survey_successful(self):
         """
         Prueba de obtener todas las encuestas exitosamente.
         """
