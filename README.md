@@ -351,6 +351,7 @@ Content-Type: application/json
 | [Crear encuesta](#crear-encuesta) | `POST` | `/api/surveys/create` | Crea una nueva encuesta. |
 | [Obtener una encuesta por ID](#obtener-encuesta-por-id) | `GET` | `/api/surveys/get/<str:survey_id>` | Obtiene una encuesta mediante su ID. |
 | [Obtener todas las encuestas](#obtener-todas-las-encuesta) | `GET` | `/api/surveys/get_all` | Obtiene todas las encuestas. |
+| [Buscar encuestas](#buscar-encuesta) | `GET` | `/api/surveys/search_surveys?query=<search_value>` | Busca las encuestas. |
 
 #### Crear encuesta
 
@@ -596,6 +597,91 @@ Content-Type: application/json
 {
     "status": "success",
     "message": "Surveys successfully obtained.",
+    "data": {
+        "surveys": [
+            {
+                "title": "Title of the surveys",
+                "description": "Description of the surveys.",
+                "start_date": "2024-10-28T01:55:01.828617Z",
+                "end_date": "2024-10-29T21:39:50.764361Z",
+                "is_public": true,
+                "user": {
+                    "id": 29,
+                    "username": "ropage",
+                    "email": "ropage7279@bulatox.com",
+                    "date_joined": "2024-10-28T01:10:20.683512Z"
+                },
+                "asks": [
+                    {
+                        "text": "This is a multiple choice question",
+                        "type": "multiple",
+                        "options": [
+                            {
+                                "text": "Option 1"
+                            },
+                            {
+                                "text": "Option 2"
+                            },
+                            {
+                                "text": "Option 3"
+                            }
+                        ]
+                    },
+                    {
+                        "text": "This is a true or false question",
+                        "type": "boolean",
+                        "options": []
+                    },
+                    {
+                        "text": "This is a short answer question",
+                        "type": "short",
+                        "options": []
+                    }
+                ]
+            },
+            ...
+        ]
+    }
+}
+```
+
+#### Buscar encuestas
+
+##### Método HTTP
+
+```http
+GET /api/surveys/search_surveys?query=<search_value>
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `search_value` | `string` | Valor del párametro de búsqueda |
+
+> **NOTA**: El parámetro `search_value` Busca encuestas por:
+>
+> - **title**: Titulo de la encuesta.
+> - **description**: Descripcion de la encuesta.
+> - **user**: Usuario creador de la encuesta.
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+    "status": "success",
+    "message": "Searching for surveys successfully.",
     "data": {
         "surveys": [
             {

@@ -9,16 +9,19 @@ from apps.surveys.models import Survey
 from faker import Faker
 from datetime import timedelta
 import random
+import urllib.parse
 
 
 fake = Faker()
 
 
-# Tests para la obtener todas las encuestas
-class GetAllSurveysTestsCase(TestCase):
+# Tests para la buscar encuestas
+class SearchSurveysTestsCase(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('get_all_surveys')
+        base_url = reverse('search_surveys')
+        query_params = {'query': fake.sentence(nb_words=6)}
+        self.url = f"{base_url}?{urllib.parse.urlencode(query_params)}"
         self.user = User.objects.create(
             username='TestUsername',
             email='test@email.com',
@@ -36,20 +39,31 @@ class GetAllSurveysTestsCase(TestCase):
         )
 
     
-    def test_get_all_survey_successful(self):
+    def test_search_surveys_successful(self):
         """
-        Prueba de obtener todas las encuestas exitosamente.
+        Prueba de buscar encuestas exitosamente.
         """
         response = self.client.get(self.url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue('status' in response.data)
         self.assertTrue('message' in response.data)
         self.assertTrue('data' in response.data)
+    
 
-
-    def test_get_all_survey_without_token(self):
+    def test_search_surveys_without_parameter(self):
         """
-        Prueba de obtener todas las encuesta sin token.
+        Prueba de buscar encuestas sin el párametro query
+        """
+        self.url = reverse('search_surveys')
+        response = self.client.get(self.url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue('status' in response.data)
+        self.assertTrue('message' in response.data)
+
+
+    def test_search_surveys_without_token(self):
+        """
+        Prueba de buscar encuestas sin token.
         """
         self.client.force_authenticate(user=None)
         response = self.client.get(self.url)
