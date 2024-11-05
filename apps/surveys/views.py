@@ -112,3 +112,39 @@ def get_all_surveys(request):
             'surveys': survey_response_serializer.data
         }
     }, status=status.HTTP_200_OK)
+
+
+# Endpoint para la buscar encuestas por titulo
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def search_surveys(request):
+    # Obtiene el párametro de búsqueda
+    query = request.query_params.get('query', None)
+
+    # Verifica que el párametro query es none
+    if query is None:
+        # Respuesta erronea a no proporcionar el párametro query
+        return Response({
+            'status': 'error',
+            'message': 'The search parameter "query" is required.'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Filtra las encuestas que coincidan con la búsqueda
+    surveys = Survey.objects.filter(
+        Q(title__icontains=query) |
+        Q(description__icontains=query) |
+        Q(user__username__icontains=query)
+    )
+
+    # Serializa los datos de las encuestas
+    survey_response_serializer = SurveyResponseSerializer(surveys, many=True)
+
+    # Respuesta de exito a buscar las encuestas
+    return Response({
+        'status': 'success',
+        'message': 'Searching for surveys successfully.',
+        'data': {
+            'surveys': survey_response_serializer.data
+        }
+    }, status=status.HTTP_200_OK)
