@@ -106,4 +106,4 @@ class SurveyResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Survey
-        fields = ['title', 'description', 'start_date', 'end_date', 'is_public', 'user', 'asks', 'options']
+        fields = ['id', 'title', 'description', 'start_date', 'end_date', 'is_public', 'user', 'asks', 'options']
