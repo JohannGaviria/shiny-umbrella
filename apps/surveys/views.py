@@ -131,7 +131,7 @@ def get_all_surveys(request):
     }, status=status.HTTP_200_OK)
 
 
-# Endpoint para la buscar encuestas por titulo
+# Endpoint para la buscar encuestas
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])

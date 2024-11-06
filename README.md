@@ -351,7 +351,7 @@ Content-Type: application/json
 | [Crear encuesta](#crear-encuesta) | `POST` | `/api/surveys/create` | Crea una nueva encuesta. |
 | [Obtener una encuesta por ID](#obtener-encuesta-por-id) | `GET` | `/api/surveys/get/<str:survey_id>` | Obtiene una encuesta mediante su ID. |
 | [Obtener todas las encuestas](#obtener-todas-las-encuesta) | `GET` | `/api/surveys/get_all?page_size=<size_value>&page=<page_value>` | Obtiene todas las encuestas. |
-| [Buscar encuestas](#buscar-encuesta) | `GET` | `/api/surveys/search_surveys?query=<search_value>&page_size=<size_value>&page=<page_value>` | Busca las encuestas. |
+| [Buscar encuestas](#buscar-encuestas) | `GET` | `/api/surveys/search_surveys?query=<search_value>&page_size=<size_value>&page=<page_value>` | Busca las encuestas. |
 
 #### Crear encuesta
 
