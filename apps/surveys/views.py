@@ -101,17 +101,32 @@ def get_survey_id(request, survey_id):
 @permission_classes([IsAuthenticated])
 def get_all_surveys(request):
     # Obtiene todas las encuestas
-    surveys = Survey.objects.all()
+    surveys = Survey.objects.all().order_by('id')
     
     # Serializa los datos de respuesta de la encusta
     survey_response_serializer = SurveyResponseSerializer(surveys, many=True)
+
+    # Crea la paginación de los datos obtenidos
+    paginator = CustomPageNumberPagination()
+    paginated_queryset = paginator.paginate_queryset(surveys, request)
+
+    # Serializa los datos de las encuestas
+    survey_response_serializer = SurveyResponseSerializer(paginated_queryset, many=True)
+
+    # Obtiene la respuesta con los datos paginados
+    response_data = paginator.get_paginated_response(survey_response_serializer.data)
 
     # Respuesta exitosa al obtener las encuestas
     return Response({
         'status': 'success',
         'message': 'Surveys successfully obtained.',
         'data': {
-            'surveys': survey_response_serializer.data
+            'page_info': {
+                'count': response_data.data['count'],
+                'page_size': int(request.query_params.get('page_size', REST_FRAMEWORK['PAGE_SIZE'])),
+                'links': response_data.data['links']
+            },
+            'surveys': response_data.data['results']
         }
     }, status=status.HTTP_200_OK)
 
