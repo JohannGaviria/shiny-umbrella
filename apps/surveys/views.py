@@ -177,3 +177,45 @@ def search_surveys(request):
             'surveys': response_data.data['results']
         }
     }, status=status.HTTP_200_OK)
+
+
+# Endpoint para eliminar una encuesta
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_survey(request, survey_id):
+    try:
+        # Obtiene la encuesta a eliminar
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea a no obtener la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica que el usuario sea el creador
+    if request.user != survey.user:
+        # Respuesta erronea a eliminar la encuesta que no es del usuario
+        return Response({
+            'status': 'error',
+            'message': 'The user is not the creator of the survey.'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Elimina la encuesta
+    survey.delete()
+
+    # Crea el mensaje de notificacion al crear la encuesta
+    subject = f'Survey Delete: "{survey.title}"'
+    message = f'Hello {request.user.username},\n\nYour survey, "{survey.title}", has been deleted successfully.'
+    recipient_list = [request.user.email]
+
+    # Envia el mensaje al correo electrónico del usuario
+    email_notification = EmailNotification(subject, message, recipient_list)
+    email_notification.send()
+
+    # Respuesta exitosa al eliminar la encuesta
+    return Response({
+        'status': 'success',
+        'message': 'Survey successfully deleted.'
+    }, status=status.HTTP_200_OK)
