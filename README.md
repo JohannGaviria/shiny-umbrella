@@ -352,6 +352,7 @@ Content-Type: application/json
 | [Obtener una encuesta por ID](#obtener-encuesta-por-id) | `GET` | `/api/surveys/get/<str:survey_id>` | Obtiene una encuesta mediante su ID. |
 | [Obtener todas las encuestas](#obtener-todas-las-encuesta) | `GET` | `/api/surveys/get_all?page_size=<size_value>&page=<page_value>` | Obtiene todas las encuestas. |
 | [Buscar encuestas](#buscar-encuestas) | `GET` | `/api/surveys/search_surveys?query=<search_value>&page_size=<size_value>&page=<page_value>` | Busca las encuestas. |
+| [Eliminar encuesta](#eliminar-encuesta) | `DELETE` | `/api/surveys/delete/<str:survey_id>` | Elimina una encuesta por su ID. |
 
 #### Crear encuesta
 
@@ -761,5 +762,39 @@ Content-Type: application/json
             ...
         ]
     }
+}
+```
+
+#### Eliminar encuesta
+
+##### Método HTTP
+
+```http
+DELETE /api/surveys/delete/<str:survey_id>
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `survey_id` | `string` | **Requerido**.  ID de la encuesta |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+  "status": "success",
+  "message": "Survey successfully deleted."
 }
 ```
