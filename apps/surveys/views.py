@@ -179,6 +179,56 @@ def search_surveys(request):
     }, status=status.HTTP_200_OK)
 
 
+# Endpoint para actualizar una encuesta
+@api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_survey(request, survey_id):
+    try:
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea a no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica que la encuesta sea del usuario
+    if request.user != survey.user:
+        # Respuesta erronea al usuario no ser el creador
+        return Response({
+            'status': 'error',
+            'message': 'The user is not the creator of the survey.'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Serializa los datos de la encueta
+    survey_validation_serializer = SurveyValidationSerializer(survey, data=request.data, partial=True)
+
+    # Verifica que los datos sean válidos
+    if not survey_validation_serializer.is_valid():
+        # Respuesta erronea en la validación de los datos
+        return Response({
+            'status': 'error',
+            'message': 'Errors in data validation.',
+            'errors': survey_validation_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Actualiza la encuesta
+    survey = survey_validation_serializer.save()
+
+    # Serializa la respuesta
+    survey_response_serializer = SurveyResponseSerializer(survey)
+
+    # Respuesta exitosa al actualizar la encuesta
+    return Response({
+        'status': 'success',
+        'message': 'Survey update successfully.',
+        'data': {
+            'survey': survey_response_serializer.data
+        }
+    }, status=status.HTTP_200_OK)
+
+
 # Endpoint para eliminar una encuesta
 @api_view(['DELETE'])
 @authentication_classes([TokenAuthentication])

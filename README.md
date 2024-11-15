@@ -352,6 +352,7 @@ Content-Type: application/json
 | [Obtener una encuesta por ID](#obtener-encuesta-por-id) | `GET` | `/api/surveys/get/<str:survey_id>` | Obtiene una encuesta mediante su ID. |
 | [Obtener todas las encuestas](#obtener-todas-las-encuesta) | `GET` | `/api/surveys/get_all?page_size=<size_value>&page=<page_value>` | Obtiene todas las encuestas. |
 | [Buscar encuestas](#buscar-encuestas) | `GET` | `/api/surveys/search_surveys?query=<search_value>&page_size=<size_value>&page=<page_value>` | Busca las encuestas. |
+| [Actualizar una encuesta](#actualizar-una-encuesta) | `PUT` | `/api/surveys/update/<str:survey_id>` | Actualiza una encuesta. |
 | [Eliminar encuesta](#eliminar-encuesta) | `DELETE` | `/api/surveys/delete/<str:survey_id>` | Elimina una encuesta por su ID. |
 
 #### Crear encuesta
@@ -761,6 +762,143 @@ Content-Type: application/json
             },
             ...
         ]
+    }
+}
+```
+
+#### Actualizar una encuesta
+
+##### Método HTTP
+
+```http
+PUT /api/surveys/update/<str:survey_id>
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `title` | `string` | Titulo de la encuesta |
+| `description` | `string` | Descripcion de la encuesta |
+| `start_date` | `datetime` | Fecha de iniciación de la encuesta |
+| `end_date` | `datetime` | Fecha de finalización de la encuesta |
+| `is_public` | `bool` | Visibilidad de la encuesta |
+| `asks` | `array` | Lista de preguntas asociadas a la encuesta |
+
+> **NOTA**: El parámetro `start_date` es opcional; si no se proporciona, tomará por defecto la fecha actual.
+
+> **NOTA**: El parámetro `is_public` acepta los siguientes valores:
+>
+> - **true**: Indica que la encuesta es pública.
+> - **false**: Indica que la encuesta es privada.
+> - **null**: El campo tomaria por defecto la propiedad `false`.
+
+**Estructura de `asks`**
+
+| Parámetro    | Tipo      | Descripción                                           |
+| :----------- | :-------- | :--------------------------------------------------- |
+| `text`       | `string`  | Texto de la pregunta                  |
+| `type`       | `string`  | Tipo de pregunta |
+| `options`    | `array`   | Lista de opciones de respuesta |
+
+> **NOTA**: El parámetro `type` solo acepta los siguientes valores:
+>
+> - **multiple**: Indica que la pregunta es de opción multiple.
+> - **short**: Indica que la pregunta es de respuesta corta.
+> - **boolean**: Indica que la pregunta es de verdadero o falso.
+
+> **NOTA**: El parámetro `options` solo es requerido para preguntas tipo `multiple`
+
+**Estructura de `options`**
+
+| Parámetro    | Tipo      | Descripción                                           |
+| :----------- | :-------- | :--------------------------------------------------- |
+| `text`       | `string`  | Texto de la opción |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+
+{
+    "title": "Title of the surveys",
+    "description": "Description of the surveys.",
+    "end_date": "2024-10-29 21:39:50.764361",
+    "is_public": true,
+    "asks": [
+        {
+            "text": "This is a multiple choice question",
+            "type": "multiple",
+            "options": [
+                {"text": "Option 1"},
+                {"text": "Option 2"},
+                {"text": "Option 3"}
+            ]
+        },
+        {
+            "text": "This is a true or false question",
+            "type": "boolean"
+        },
+        {
+            "text": "This is a short answer question",
+            "type": "short"
+        }
+    ]
+}
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+    "status": "success",
+    "message": "Survey update successfully.",
+    "data": {
+        "survey": {
+            "title": "Title of the surveys",
+            "description": "Description of the surveys.",
+            "start_date": "2024-10-28T01:55:01.828617Z",
+            "end_date": "2024-10-29T21:39:50.764361Z",
+            "is_public": true,
+            "user": {
+                "id": 29,
+                "username": "ropage",
+                "email": "ropage7279@bulatox.com",
+                "date_joined": "2024-10-28T01:10:20.683512Z"
+            },
+            "asks": [
+                {
+                    "text": "This is a multiple choice question",
+                    "type": "multiple",
+                    "options": [
+                        {
+                            "text": "Option 1"
+                        },
+                        {
+                            "text": "Option 2"
+                        },
+                        {
+                            "text": "Option 3"
+                        }
+                    ]
+                },
+                {
+                    "text": "This is a true or false question",
+                    "type": "boolean",
+                    "options": []
+                },
+                {
+                    "text": "This is a short answer question",
+                    "type": "short",
+                    "options": []
+                }
+            ]
+        }
     }
 }
 ```
