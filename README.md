@@ -240,7 +240,7 @@ POST /api/users/sign_out
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
@@ -277,7 +277,7 @@ PUT /api/users/update_user
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 
 {
     "username": "TestNewUsername",
@@ -329,7 +329,7 @@ DELETE /api/users/delete_user
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
@@ -352,8 +352,8 @@ Content-Type: application/json
 | [Obtener una encuesta por ID](#obtener-encuesta-por-id) | `GET` | `/api/surveys/get/<str:survey_id>` | Obtiene una encuesta mediante su ID. |
 | [Obtener todas las encuestas](#obtener-todas-las-encuesta) | `GET` | `/api/surveys/get_all?page_size=<size_value>&page=<page_value>` | Obtiene todas las encuestas. |
 | [Buscar encuestas](#buscar-encuestas) | `GET` | `/api/surveys/search_surveys?query=<search_value>&page_size=<size_value>&page=<page_value>` | Busca las encuestas. |
-| [Actualizar una encuesta](#actualizar-una-encuesta) | `PUT` | `/api/surveys/update/<str:survey_id>` | Actualiza una encuesta. |
-| [Eliminar encuesta](#eliminar-encuesta) | `DELETE` | `/api/surveys/delete/<str:survey_id>` | Elimina una encuesta por su ID. |
+| [Actualizar una encuesta](#actualizar-una-encuesta) | `PUT` | `/api/surveys/update/<str:survey_id>` | Actualiza una encuesta por su ID. |
+| [Eliminar una encuesta](#eliminar-una-encuesta) | `DELETE` | `/api/surveys/delete/<str:survey_id>` | Elimina una encuesta por su ID. |
 
 #### Crear encuesta
 
@@ -410,7 +410,7 @@ POST /api/surveys/create
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 
 {
     "title": "Title of the surveys",
@@ -505,14 +505,14 @@ GET /api/surveys/get/<str:survey_id>
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `survey_id` | `string` | **Requerido**.  ID de la encuesta |
 
 ##### Ejemplo de solicitud
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
@@ -581,7 +581,7 @@ GET /api/surveys/get_all?page_size=<size_value>&page=<page_value>
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `size_value` | `int` | Valor del tamaño de elementos por página |
 | `page_value` | `int` | Valor de la página para navegar entre la paginación |
 
@@ -596,7 +596,7 @@ GET /api/surveys/get_all?page_size=<size_value>&page=<page_value>
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
@@ -676,7 +676,7 @@ GET /api/surveys/search_surveys?query=<search_value>&page_size=<size_value>&page
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `search_value` | `string` | Valor del párametro de búsqueda |
 | `size_value` | `int` | Valor del tamaño de elementos por página |
 | `page_value` | `int` | Valor de la página para navegar entre la paginación |
@@ -698,7 +698,7 @@ GET /api/surveys/search_surveys?query=<search_value>&page_size=<size_value>&page
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
@@ -778,7 +778,7 @@ PUT /api/surveys/update/<str:survey_id>
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `title` | `string` | Titulo de la encuesta |
 | `description` | `string` | Descripcion de la encuesta |
 | `start_date` | `datetime` | Fecha de iniciación de la encuesta |
@@ -820,7 +820,7 @@ PUT /api/surveys/update/<str:survey_id>
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 
 {
     "title": "Title of the surveys",
@@ -903,7 +903,7 @@ Content-Type: application/json
 }
 ```
 
-#### Eliminar encuesta
+#### Eliminar una encuesta
 
 ##### Método HTTP
 
@@ -915,14 +915,14 @@ DELETE /api/surveys/delete/<str:survey_id>
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `survey_id` | `string` | **Requerido**.  ID de la encuesta |
 
 ##### Ejemplo de solicitud
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
