@@ -13,7 +13,7 @@ fake = Faker()
 
 
 # Tests para la creación de encuestas
-class SurveyCreateTests(TestCase):
+class SurveyCreateTestscase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.url = reverse('create_survey')
@@ -35,7 +35,7 @@ class SurveyCreateTests(TestCase):
 
     def test_create_survey_successful(self):
         """
-        Prueba de crear encuesta exitoso.
+        Prueba de crear una encuesta exitoso.
         """
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -46,7 +46,7 @@ class SurveyCreateTests(TestCase):
 
     def test_create_survey_successful_with_minimum_data(self):
         """
-        Prueba de crear encuesta con los minimos datos
+        Prueba de crear una encuesta con los minimos datos
         """
         data = {
             'title': fake.sentence(nb_words=6),
@@ -97,7 +97,7 @@ class SurveyCreateTests(TestCase):
 
     def test_create_survey_with_empty_description(self):
         """
-        Prueba de crear encuesta sin una descripcion.
+        Prueba de crear una encuesta sin una descripcion.
         """
         del self.data['description']
         response = self.client.post(self.url, self.data, format='json')
@@ -109,7 +109,7 @@ class SurveyCreateTests(TestCase):
 
     def test_create_survey_invalid_data(self):
         """
-        Prueba de crear encuesta con datos invalidos.
+        Prueba de crear una encuesta con datos invalidos.
         """
         self.data['is_public'] = 'asdfg'
         response = self.client.post(self.url, self.data, format='json')
@@ -146,7 +146,7 @@ class SurveyCreateTests(TestCase):
 
     def test_create_survey_with_multiple_choice_question_without_enough_options(self):
         """
-        Prueba de crear encuesta con pregunta de opción múltiple sin suficientes opciones.
+        Prueba de crear una encuesta con pregunta de opción múltiple sin suficientes opciones.
         """
         self.data['asks'] = [{
             'text': '¿Cuál es tu color favorito?',
@@ -162,7 +162,7 @@ class SurveyCreateTests(TestCase):
 
     def test_create_survey_with_short_question_with_options(self):
         """
-        Prueba de crear encuesta con pregunta corta que tiene opciones.
+        Prueba de crear una encuesta con pregunta corta que tiene opciones.
         """
         self.data['asks'] = [{
             'text': '¿Cuál es tu nombre?',
@@ -178,7 +178,7 @@ class SurveyCreateTests(TestCase):
 
     def test_create_survey_without_token(self):
         """
-        Prueba de crear encuesta sin token.
+        Prueba de crear una encuesta sin token.
         """
         self.client.force_authenticate(user=None)
         response = self.client.post(self.url)

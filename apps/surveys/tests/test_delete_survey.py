@@ -14,7 +14,7 @@ import random
 fake = Faker()
 
 
-# Tests para eliminar encuesta
+# Tests para eliminar una encuesta
 class DeleteSurveyTestsCase(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -54,7 +54,7 @@ class DeleteSurveyTestsCase(TestCase):
 
     def test_delete_survey_not_found(self):
         """
-        Prueba de eliminar encuesta que no existe
+        Prueba de eliminar una encuesta que no existe
         """
         url = reverse('delete_survey', args=['ec7f051a960d42788a10ff51cc85dc23'])
         response = self.client.delete(url, format='json')
@@ -65,7 +65,7 @@ class DeleteSurveyTestsCase(TestCase):
 
     def test_delete_survey_user_is_not_create(self):
         """
-        Prueba de eliminar encuesta que el usuario no es el creador.
+        Prueba de eliminar una encuesta que el usuario no es el creador.
         """
         self.client.force_authenticate(user=self.user_not_create)
         response = self.client.delete(self.url, format='json')
@@ -76,7 +76,7 @@ class DeleteSurveyTestsCase(TestCase):
 
     def test_delete_survey_without_token(self):
         """
-        Prueba de eliminar encuesta sin token.
+        Prueba de eliminar una encuesta sin token.
         """
         self.client.force_authenticate(user=None)
         response = self.client.delete(self.url)
