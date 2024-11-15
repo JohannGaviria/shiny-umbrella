@@ -98,6 +98,67 @@ class SurveyValidationSerializer(serializers.ModelSerializer):
         return survey
 
 
+    def update(self, instance, validated_data):
+        """
+        Actualiza la encuesta.
+        """
+        # Extrae los datos de las preguntas (asks) del diccionario de datos validados
+        asks_data = validated_data.pop('asks', [])
+        
+        # Actualiza la instancia de la encuesta con los datos validados (sin incluir 'asks')
+        instance = super().update(instance, validated_data)
+
+        # Itera sobre cada pregunta proporcionada en la solicitud
+        for ask_data in asks_data:
+            # Extrae las opciones anidadas del diccionario de datos de la pregunta
+            options_data = ask_data.pop('options', [])
+            
+            # Obtiene el ID de la pregunta si existe
+            ask_id = ask_data.get('id')
+            
+            # Si la pregunta ya existe (tiene un ID)
+            if ask_id:
+                # Recupera la pregunta existente de la base de datos
+                ask = Ask.objects.get(id=ask_id, survey=instance)
+                
+                # Actualiza los atributos de la pregunta existente
+                for key, value in ask_data.items():
+                    setattr(ask, key, value)
+                
+                # Guarda los cambios de la pregunta
+                ask.save()
+                
+                # Itera sobre cada opción asociada a la pregunta actual
+                for option_data in options_data:
+                    # Obtiene el ID de la opción si existe
+                    option_id = option_data.get('id')
+                    
+                    # Si la opción ya existe (tiene un ID)
+                    if option_id:
+                        # Recupera la opción existente de la base de datos
+                        option = Option.objects.get(id=option_id, ask=ask)
+                        
+                        # Actualiza el texto de la opción existente
+                        option.text = option_data.get('text', option.text)
+                        
+                        # Guarda los cambios de la opción
+                        option.save()
+                    else:
+                        # Crea una nueva opción asociada a la pregunta actual
+                        Option.objects.create(ask=ask, **option_data)
+            else:
+                # Si la pregunta no existe, crea una nueva pregunta
+                ask = Ask.objects.create(survey=instance, **ask_data)
+                
+                # Itera sobre cada opción asociada a la nueva pregunta
+                for option_data in options_data:
+                    # Crea una nueva opción asociada a la nueva pregunta
+                    Option.objects.create(ask=ask, **option_data)
+        
+        # Retorna la instancia actualizada de la encuesta
+        return instance
+
+
 class SurveyResponseSerializer(serializers.ModelSerializer):
     user = UserResponseSerializer(read_only=True)
     asks = AksSerializer(many=True, read_only=True)
