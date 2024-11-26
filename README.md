@@ -354,6 +354,7 @@ Content-Type: application/json
 | [Buscar encuestas](#buscar-encuestas) | `GET` | `/api/surveys/search_surveys?query=<search_value>&page_size=<size_value>&page=<page_value>` | Busca las encuestas. |
 | [Actualizar una encuesta](#actualizar-una-encuesta) | `PUT` | `/api/surveys/update/<str:survey_id>` | Actualiza una encuesta por su ID. |
 | [Eliminar una encuesta](#eliminar-una-encuesta) | `DELETE` | `/api/surveys/delete/<str:survey_id>` | Elimina una encuesta por su ID. |
+| [Responder una encuesta](#responder-una-encuesta) | `POST` | `/api/surveys/<str:survey_id>/answer` | Responde a una encuesta. |
 
 #### Crear encuesta
 
@@ -934,5 +935,143 @@ Content-Type: application/json
 {
   "status": "success",
   "message": "Survey successfully deleted."
+}
+```
+
+#### Responder una encuesta
+
+##### Método HTTP
+
+```http
+POST /api/surveys/<str:survey_id>/answer
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `answers` | `dict` | **Requerido**. Diccionario con las respuesta de la encuesta  |
+
+**Estructura de `answers`**
+
+| Parámetro    | Tipo      | Descripción                                           |
+| :----------- | :-------- | :--------------------------------------------------- |
+| `content_answer`       | `string`  | **Requerido**. Contenido de la respuesta |
+| `ask`       | `string`  | **Requerido**. ID de la pregunta |
+| `option`       | `string`  | **Requerido**. ID de la opción |
+
+> **NOTA**: El parámetro `option` solo es requerido para respuesta a preguntas de tipo `multiple`
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+
+{
+    "answers": [
+        {
+            "content_answer": "Python",
+            "ask": "c6d8b863-e67f-402a-b9c6-5ef2a7722a9e",
+            "option": "e5474d9f-e4da-41cc-96a7-e1ea599fb613"
+        },
+        {
+            "content_answer": "Backend",
+            "ask": "eda4700e-5de8-4bb9-90a6-7b39bbc8ccfa"
+        },
+        {
+            "content_answer": "True",
+            "ask": "8a5d7fd1-7958-4b77-b2d5-60fbd3e90ad1"
+        }
+    ]
+}
+
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 201 CREATED
+Content-Type: application/json
+
+{
+  "status": "success",
+  "message": "Survey successfully answered.",
+  "data": {
+    "answers": [
+      {
+        "id": "267cd299-011e-49cd-8929-f54ec2288498",
+        "user": {
+          "id": 11,
+          "username": "kalahad",
+          "email": "kalahad631@chainds.com",
+          "date_joined": "2024-10-13T23:16:20.500855Z"
+        },
+        "ask": {
+          "id": "c6d8b863-e67f-402a-b9c6-5ef2a7722a9e",
+          "text": "¿Cuál es tu lenguaje de programación favorito?",
+          "type": "multiple",
+          "options": [
+            {
+              "id": "e5474d9f-e4da-41cc-96a7-e1ea599fb613",
+              "text": "Python"
+            },
+            {
+              "id": "a8477c81-0699-46bf-adbc-3989a1bbcdc7",
+              "text": "Java"
+            },
+            {
+              "id": "3181a34f-d293-4c31-bba0-27529d80a45f",
+              "text": "C++"
+            },
+            {
+              "id": "0d4d84db-3b37-491f-b9e0-4f877ce4c353",
+              "text": "C#"
+            }
+          ]
+        },
+        "content_answer": "Python",
+        "option": {
+          "id": "e5474d9f-e4da-41cc-96a7-e1ea599fb613",
+          "text": "Python"
+        }
+      },
+      {
+        "id": "9a708c3f-0f17-40d7-ac46-0eac8e64bfbd",
+        "user": {
+          "id": 11,
+          "username": "kalahad",
+          "email": "kalahad631@chainds.com",
+          "date_joined": "2024-10-13T23:16:20.500855Z"
+        },
+        "ask": {
+          "id": "eda4700e-5de8-4bb9-90a6-7b39bbc8ccfa",
+          "text": "¿Prefieres el desarrollo frontend o backend?",
+          "type": "short",
+          "options": []
+        },
+        "content_answer": "Backend",
+        "option": null
+      },
+      {
+        "id": "9bd8ab82-4988-4de9-acd3-1d2370162fe5",
+        "user": {
+          "id": 11,
+          "username": "kalahad",
+          "email": "kalahad631@chainds.com",
+          "date_joined": "2024-10-13T23:16:20.500855Z"
+        },
+        "ask": {
+          "id": "8a5d7fd1-7958-4b77-b2d5-60fbd3e90ad1",
+          "text": "¿Crees que Python es fácil de aprender?",
+          "type": "boolean",
+          "options": []
+        },
+        "content_answer": "True",
+        "option": null
+      }
+    ]
+  }
 }
 ```
