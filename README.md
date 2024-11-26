@@ -355,6 +355,7 @@ Content-Type: application/json
 | [Actualizar una encuesta](#actualizar-una-encuesta) | `PUT` | `/api/surveys/update/<str:survey_id>` | Actualiza una encuesta por su ID. |
 | [Eliminar una encuesta](#eliminar-una-encuesta) | `DELETE` | `/api/surveys/delete/<str:survey_id>` | Elimina una encuesta por su ID. |
 | [Responder una encuesta](#responder-una-encuesta) | `POST` | `/api/surveys/<str:survey_id>/answer` | Responde a una encuesta. |
+| [Invitar a Responder una encuesta](#invitar-a-responder-una-encuesta) | `POST` | `/api/surveys/<str:survey_id>/invite` | Invita a responde a una encuesta. |
 
 #### Crear encuesta
 
@@ -1073,5 +1074,48 @@ Content-Type: application/json
       }
     ]
   }
+}
+```
+
+#### Invitar a responder una encuesta
+
+##### Método HTTP
+
+```http
+POST /api/surveys/<str:survey_id>/invite
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `survey_id` | `string` | **Requerido**.  ID de la encuesta |
+| `emails` | `array` | **Requerido**.  Lista con los correos electronicos |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+
+{
+  "emails": [
+    "invitee1@example.com",
+    "invitee2@example.com",
+    "invitee3@example.com"
+  ]
+}
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+    'status': 'success',
+    'message': 'Invitations sent successfully.'
 }
 ```
