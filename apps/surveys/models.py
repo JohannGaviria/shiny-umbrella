@@ -46,3 +46,10 @@ class Answer(models.Model):
 
     class Meta:
         unique_together = ('user', 'ask') # Asegura que el mismo usuario no responda dos veces
+
+
+# Definición del modelo de invitación
+class Invitation(models.Model):
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE)
+    email = models.EmailField()
+    invited_at = models.DateTimeField(auto_now_add=True)

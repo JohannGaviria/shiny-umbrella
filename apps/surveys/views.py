@@ -6,7 +6,7 @@ from rest_framework import status
 from django.conf import settings
 from django.db.models import Q
 from .serializers import SurveyValidationSerializer, SurveyResponseSerializer, AnswerValidationSerializer, AnswerResponseSerializer
-from .models import Survey
+from .models import Survey, Invitation
 from apps.notification.utils import EmailNotification
 from apps.core.utils import CustomPageNumberPagination
 from config.settings.base import REST_FRAMEWORK
@@ -346,3 +346,70 @@ def answer_survey(request, survey_id):
             'answers': answer_response_serializer.data
         }
     }, status=status.HTTP_201_CREATED)
+
+
+# Endpoint para invitar a responder una encuesta
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def invite_answer_survey(request, survey_id):
+    try:
+        # Obtiene la encuesta mediante su ID
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea al no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    # Verifica que el usuario sea el creador
+    if survey.user != request.user:
+        # Respuesta erronea al usuario no ser el creador
+        return Response({
+            'status': 'error',
+            'message': 'You do not have permission to invite users to this survey.'
+        }, status=status.HTTP_403_FORBIDDEN)
+
+    # Obtiene la lista de correos electrónicos
+    emails = request.data.get('emails', [])
+    
+    # Verifica que la lista no esté vacía
+    if not emails:
+        # Respuesta erronea al no haber correos electrónicos
+        return Response({
+            'status': 'error',
+            'message': 'Emails are required.'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Verifica que todos los correos sean válidos y no estén vacíos
+    for email in emails:
+        if not email:
+            return Response({
+                'status': 'error',
+                'message': 'All emails must be valid and not empty.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Crear invitaciones y enviar correos
+    for email in emails:
+        # Crea y guarda la invitación
+        invitation = Invitation(survey=survey, email=email)
+        invitation.save()
+
+        # Crea la URL para responder la encuesta
+        invite_url = f'{settings.FRONTEND_URL}/api/surveys/{survey_id}/answer'
+
+        # Crea el mensaje de notificación para invitar al usuario
+        subject = f'You are invited to participate in the survey: "{survey.title}"'
+        message = f'Hello,\n\nYou have been invited to participate in the survey "{survey.title}".\n\nPlease follow the link below to participate:\n\n{invite_url}'
+        recipient_list = [email]
+        
+        # Envia el mensaje al correo electrónico del usuario
+        email_notification = EmailNotification(subject, message, recipient_list)
+        email_notification.send()
+
+    # Respuesta exitosa al enviar las invitaciones
+    return Response({
+        'status': 'success',
+        'message': 'Invitations sent successfully.'
+    }, status=status.HTTP_200_OK)
