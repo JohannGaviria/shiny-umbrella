@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from django.utils import timezone
-from .models import Survey, Option, Ask
+from .models import Survey, Option, Ask, Answer
 from apps.users.serializers import UserResponseSerializer
 
 
 class OptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option
-        fields = ['text']
+        fields = ['id', 'text']
 
 
 class AksSerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class AksSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ask
-        fields = ['text', 'type', 'options']
+        fields = ['id', 'text', 'type', 'options']
 
 
 class SurveyValidationSerializer(serializers.ModelSerializer):
@@ -168,3 +168,44 @@ class SurveyResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Survey
         fields = ['id', 'title', 'description', 'start_date', 'end_date', 'is_public', 'user', 'asks', 'options']
+
+
+class AnswerValidationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        fields = ['content_answer', 'user', 'ask', 'option']
+    
+    def validate(self, data):
+        # Verificar que la encuesta está activa (start_date <= now <= end_date)
+        ask = data.get('ask')
+        if ask:
+            survey = ask.survey
+            now = timezone.now()
+            if not (survey.start_date <= now <= survey.end_date):
+                raise serializers.ValidationError("The survey is not active.")
+        
+        # Validar las opciones de respuesta según el tipo de pregunta
+        ask_type = ask.type
+        content_answer = data.get('content_answer')
+        option = data.get('option')
+
+        if ask_type == 'multiple':
+            if not option:
+                raise serializers.ValidationError("Multiple choice questions require an option to be selected.")
+        elif ask_type in ['short', 'boolean']:
+            if option:
+                raise serializers.ValidationError(f"{ask_type.capitalize()} questions should not have options.")
+            if ask_type == 'boolean' and content_answer not in ['True', 'False']:
+                raise serializers.ValidationError("Boolean questions require a True or False answer.")
+        
+        return data
+
+
+class AnswerResponseSerializer(serializers.ModelSerializer):
+    user = UserResponseSerializer(read_only=True)
+    ask = AksSerializer(read_only=True)
+    option = OptionSerializer(read_only=True)
+
+    class Meta:
+        model = Answer
+        fields = ['id', 'user', 'ask', 'content_answer', 'option']
