@@ -271,6 +271,7 @@ def delete_survey(request, survey_id):
     }, status=status.HTTP_200_OK)
 
 
+# Endpoit para responder una encuesta
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -287,11 +288,14 @@ def answer_survey(request, survey_id):
 
     # Verifica si la encuesta es pública o privada
     if not survey.is_public and survey.user != request.user:
-        # Respuesta erronea al ser privada la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'You do not have permission to answer this survey.'
-        }, status=status.HTTP_403_FORBIDDEN)
+        # Verifica que el usuario este invitado a responder la encuesta
+        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
+        if not invitation:
+            # Respuesta erronea al usuario no tener permiso
+            return Response({
+                'status': 'error',
+                'message': 'You do not have permission to answer this survey.'
+            }, status=status.HTTP_403_FORBIDDEN)
 
     # # Obtiene los datos de la solicitud
     answers_data = request.data.get('answers', [])
