@@ -37,6 +37,7 @@ LOCAL_APPS = [
     'apps.users',
     'apps.notification',
     'apps.surveys',
+    'apps.feedback',
 ]
 
 THIRD_APPS = [
