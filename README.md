@@ -15,6 +15,7 @@ Desarrollo de una API REST que permite a los usuarios crear y participar en encu
 - [Endpoints](#endpoints)
     - [Usuarios](#usuarios)
     - [Encuestas](#encuestas)
+    - [Feedback](#Feedback)
 
 
 ## Instalación
@@ -1117,5 +1118,49 @@ Content-Type: application/json
 {
     'status': 'success',
     'message': 'Invitations sent successfully.'
+}
+```
+
+### Feedback
+
+| Nombre | Método | Url | Descripción |
+|:------ | :----- | :-- | :---------- |
+| [Agregar comentario](#agregar-commentario) | `POST` | `/api/feedbacks/survey/<str:survey_id>/comment/add` | Agregar un comentario a una encuesta. |
+
+#### Agregar comentario
+
+##### Método HTTP
+
+```http
+POST /api/feedbacks/survey/<str:survey_id>/comment/add
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `content` | `string` | **Requerido**.  Contenido del comentario |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+
+{
+    "content": "La encuesta fue interesante, pero me gustaría que incluyera más preguntas abiertas para poder expresar mejor mi opinión."
+}
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+  "status": "success",
+  "message": "Comment added successfully."
 }
 ```
