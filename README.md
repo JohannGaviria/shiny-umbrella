@@ -1126,6 +1126,7 @@ Content-Type: application/json
 | Nombre | Método | Url | Descripción |
 |:------ | :----- | :-- | :---------- |
 | [Agregar comentario](#agregar-commentario) | `POST` | `/api/feedbacks/survey/<str:survey_id>/comment/add` | Agregar un comentario a una encuesta. |
+| [Obtener todos los comentarios de una encuesta](#obtener-todos-los-comentarios-de-una-encuesta) | `GET` | `/api/feedbacks/survey/<str:survey_id>/comment/all?page_size=<size_value>&page=<page_value>` | Obtiene todos los comentarios de una encuesta. |
 
 #### Agregar comentario
 
@@ -1162,5 +1163,73 @@ Content-Type: application/json
 {
   "status": "success",
   "message": "Comment added successfully."
+}
+```
+
+#### Obtener todos los comentarios de una encuesta
+
+##### Método HTTP
+
+```http
+GET /api/feedbacks/survey/<str:survey_id>/comment/all?page_size=<size_value>&page=<page_value>
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
+| `survey_id` | `string` | **Requerido**.  ID de la encuesta |
+| `size_value` | `int` | Valor del tamaño de elementos por página |
+| `page_value` | `int` | Valor de la página para navegar entre la paginación |
+
+> **NOTA**: Si los parámetros `page_size` y `page` no se incluyen en la URL, se aplicarán valores por defecto:
+>
+> - **Ejemplo**: `GET /api/feedbacks/survey/<str:survey_id>/comment/all`
+>   - **page_size** será `10`, lo que significa que se mostrarán 10 elementos por página.
+>   - **page** será `1`, comenzando en la primera página de la paginación.
+> - **Recomendación**: Para navegar entre las páginas, debe incluir el parámetro page e indicar el número de la página a la que desea acceder.
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+  "status": "success",
+  "message": "Comments successfully obtained.",
+  "data": {
+    "page_info": {
+      "count": 1,
+      "page_size": 10,
+      "links": {
+        "next": null,
+        "previous": null
+      }
+    },
+    "comments": [
+      {
+        "id": 1,
+        "content": "Me parece una encuesta muy completa y entretenida.",
+        "created_at": "2024-11-30T22:02:20.045014Z",
+        "survey": "15f50d59-0482-427c-83d9-a9c72438c17a",
+        "user": {
+          "id": 31,
+          "username": "ribavi",
+          "email": "ribavi5414@aleitar.com",
+          "date_joined": "2024-10-28T02:58:52.928663Z"
+        }
+      },
+      ...
+    ]
+  }
 }
 ```
