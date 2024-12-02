@@ -85,7 +85,7 @@ def get_all_comments_survey(request, survey_id):
             }, status=status.HTTP_403_FORBIDDEN)
         
     # Obtiene todos los comentarios de la encuesta
-    comments = Comment.objects.all(survey=survey.id)
+    comments = Comment.objects.filter(survey=survey.id).order_by('id')
 
     # Crea la paginación de los datos obtenidos
     paginator = CustomPageNumberPagination()
