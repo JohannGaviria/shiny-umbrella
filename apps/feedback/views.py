@@ -3,7 +3,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from apps.surveys.models import Survey
+from apps.surveys.models import Survey, Invitation
 from .serializers import CommentValidationSerializer
 
 
@@ -22,13 +22,16 @@ def add_comment_survey(request, survey_id):
             'message': 'Survey not found.'
         }, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica que el usuario sea el creador
-    if survey.user != request.user:
-        # Respuesta erronea al usuario no ser el creador
-        return Response({
-            'status': 'error',
-            'message': 'You do not have permission to comment on the survey.'
-        }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica si la encuesta es pública o privada
+    if not survey.is_public and survey.user != request.user:
+        # Verifica que el usuario este invitado a responder la encuesta
+        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
+        if not invitation:
+            # Respuesta erronea al usuario no tener permiso
+            return Response({
+                'status': 'error',
+                'message': 'You do not have permission to answer this survey.'
+            }, status=status.HTTP_403_FORBIDDEN)
     
     # Agrega el ID de la encuesta a los datos
     request.data['survey'] = survey_id
