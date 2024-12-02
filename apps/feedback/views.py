@@ -4,7 +4,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from apps.surveys.models import Survey, Invitation
-from .serializers import CommentValidationSerializer
+from apps.core.utils import CustomPageNumberPagination
+from config.settings.base import REST_FRAMEWORK
+from .serializers import CommentValidationSerializer, CommentResponseSerializer
+from .models import Comment
 
 
 # Endpoint para agregar un comentario a una encuesta
@@ -56,3 +59,57 @@ def add_comment_survey(request, survey_id):
         'status': 'success',
         'message': 'Comment added successfully.'
     }, status=status.HTTP_201_CREATED)
+
+
+#Endpoint para obtener todos los comentatios de una encuesta
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_all_comments_survey(request, survey_id):
+    try:
+        # Busca la encuesta por su ID
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea al no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica si la encuesta es pública o privada
+    if not survey.is_public and survey.user != request.user:
+        # Verifica que el usuario este invitado a responder la encuesta
+        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
+        if not invitation:
+            # Respuesta erronea al usuario no tener permiso
+            return Response({
+                'status': 'error',
+                'message': 'You do not have permission to answer this survey.'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+    # Obtiene todos los comentarios de la encuesta
+    comments = Comment.objects.filter(survey=survey.id).order_by('id')
+
+    # Crea la paginación de los datos obtenidos
+    paginator = CustomPageNumberPagination()
+    paginated_queryset = paginator.paginate_queryset(comments, request)
+
+    # Serializa los datos de los comentarios
+    comment_response_serializer = CommentResponseSerializer(paginated_queryset, many=True)
+
+    # Obtiene la respuesta con los datos paginados
+    response_data = paginator.get_paginated_response(comment_response_serializer.data)
+
+    # Respuesta exitosa al obtener las encuestas
+    return Response({
+        'status': 'success',
+        'message': 'Comments successfully obtained.',
+        'data': {
+            'page_info': {
+                'count': response_data.data['count'],
+                'page_size': int(request.query_params.get('page_size', REST_FRAMEWORK['PAGE_SIZE'])),
+                'links': response_data.data['links']
+            },
+            'comments': response_data.data['results']
+        }
+    }, status=status.HTTP_200_OK)
