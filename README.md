@@ -1132,6 +1132,7 @@ Content-Type: application/json
 | [Agregar calificación](#agregar-calificación) | `POST` | `/api/feedbacks/survey/<str:survey_id>/qualify/add` | Agregar una calificación a una encuesta. |
 | [Obtener todos las calificaciones de una encuesta](#obtener-todos-las-calificaciones-de-una-encuesta) | `GET` | `/api/feedbacks/survey/<str:survey_id>/qualify/all?page_size=<size_value>&page=<page_value>` | Obtiene todas las calificaciones de una encuesta. |
 | [Actualizar una calificación](#actualizar-una-calificación) | `PUT` | `/api/feedbacks/survey/<str:survey_id>/qualify/<int:qualify_id>/update` | Actualiza una calificación de una encuesta. |
+| [Eliminar una calificación](#eliminar-una-calificación) | `DELETE` | `/api/feedbacks/survey/<str:survey_id>/qualify/<int:qualify_id>/delete` | Elimina una calificación de una encuesta. |
 
 #### Agregar comentario
 
@@ -1461,3 +1462,37 @@ Content-Type: application/json
 }
 ```
 
+#### Eliminar una calificación
+
+##### Método HTTP
+
+```http
+DELETE /api/feedbacks/survey/<str:survey_id>/qualify/<int:qualify_id>/delete
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `survey_id` | `str` | **Requerido**.  ID de la encuesta |
+| `qualify_id` | `int` | **Requerido**.  ID de la calificación |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+  "status": "success",
+  "message": "Qualify successfully deleted."
+}
+```
