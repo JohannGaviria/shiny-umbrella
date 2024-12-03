@@ -414,3 +414,57 @@ def update_qualify_survey(request, survey_id, qualify_id):
         'status': 'success',
         'message': 'Qualify updated successfully.'
     }, status=status.HTTP_200_OK)
+
+
+# Endpoint para eliminar una calificación de una encuesta
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_qualify_survey(request, survey_id, qualify_id):
+    try:
+        # Busca la encuesta por su ID
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea al no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica si la encuesta es pública o privada
+    if not survey.is_public and survey.user != request.user:
+        # Verifica que el usuario este invitado a responder la encuesta
+        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
+        if not invitation:
+            # Respuesta erronea al usuario no tener permiso
+            return Response({
+                'status': 'error',
+                'message': 'You are not allowed to comment on the survey.'
+            }, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        # Busca la calificación de la encuesta por su ID
+        qualify = Qualify.objects.get(id=qualify_id)
+    except Qualify.DoesNotExist:
+        # Respuesta erronea al no encontrar la califiación
+        return Response({
+            'status': 'error',
+            'message': 'Qualify not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica que el usuario es el creador
+    if qualify.user != request.user:
+        # Respuesta erronea al usuario no ser el creador
+        return Response({
+            'status': 'error',
+            'message': 'The user is not the creator of the qualify.'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Elimina la califiación de la encuesta
+    qualify.delete()
+
+    # Respuesta exitosa al eliminar la calificación
+    return Response({
+        'status': 'success',
+        'message': 'Qualify successfully deleted.'
+    }, status=status.HTTP_200_OK)
