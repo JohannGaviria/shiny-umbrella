@@ -6,7 +6,7 @@ from rest_framework import status
 from apps.surveys.models import Survey, Invitation
 from apps.core.utils import CustomPageNumberPagination
 from config.settings.base import REST_FRAMEWORK
-from .serializers import CommentValidationSerializer, CommentResponseSerializer
+from .serializers import CommentValidationSerializer, CommentResponseSerializer, QualifyValidationSerializer
 from .models import Comment
 
 
@@ -238,3 +238,54 @@ def delete_comment_survey(request, survey_id, comment_id):
         'status': 'success',
         'message': 'Comment successfully deleted.'
     }, status=status.HTTP_200_OK)
+
+
+# Endpoint para agregar una calificación a una encuesta
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def add_qualify_survey(request, survey_id):
+    try:
+        # Busca la encuesta por su ID
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea al no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica si la encuesta es pública o privada
+    if not survey.is_public and survey.user != request.user:
+        # Verifica que el usuario este invitado a responder la encuesta
+        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
+        if not invitation:
+            # Respuesta erronea al usuario no tener permiso
+            return Response({
+                'status': 'error',
+                'message': 'You are not allowed to qualify on the survey.'
+            }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Agrega el ID de la encuesta a los datos
+    request.data['survey'] = survey_id
+
+    # Serializa los datos para la validación
+    qualify_validation_serializer = QualifyValidationSerializer(data=request.data, context={'request': request})
+
+    # Verifica que los datos son válidos
+    if not qualify_validation_serializer.is_valid():
+        # Respuesta de error en la validación de datos
+        return Response({
+            'status': 'error',
+            'message': 'Errors in data validation.',
+            'errors': qualify_validation_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Guarda la calificación
+    qualify_validation_serializer.save()
+    
+    # Respuesta exitosa a agregar una calificación
+    return Response({
+        'status': 'success',
+        'message': 'Qualify added successfully.'
+    }, status=status.HTTP_201_CREATED)
