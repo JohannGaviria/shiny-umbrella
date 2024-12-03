@@ -1,6 +1,6 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from .models import Comment, Qualify
-from apps.surveys.models import Survey
 from apps.users.serializers import UserResponseSerializer
 
 
@@ -51,6 +51,39 @@ class QualifyValidationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Qualify
         fields = ['assessment', 'survey', 'user']
+        read_only_fields = ['user']
+    
+
+    def validate(self, data):
+        """
+        Validar que el usuario no haya calificado ya la encuesta.
+        """
+        user = self.context['request'].user
+        survey = data.get('survey')
+        if Qualify.objects.filter(survey=survey, user=user).exists():
+            raise ValidationError({
+                'qualify': 'The user has already rated this survey.'
+            })    
+        return data
+    
+
+    def create(self, validated_data):
+        """
+        Crea la calificación.
+        """
+        user = self.context['request'].user
+        validated_data['user'] = user
+        return super().create(validated_data)
+
+
+    def update(self, instance, validated_data):
+        """
+        Actualiza la calificación.
+        """
+        instance.user = self.context['request'].user
+        instance.content = validated_data.get('content', instance.content)
+        instance.save()
+        return instance
 
 
 class QualifyResponseSerializer(serializers.ModelSerializer):

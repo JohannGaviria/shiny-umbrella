@@ -1129,6 +1129,8 @@ Content-Type: application/json
 | [Obtener todos los comentarios de una encuesta](#obtener-todos-los-comentarios-de-una-encuesta) | `GET` | `/api/feedbacks/survey/<str:survey_id>/comment/all?page_size=<size_value>&page=<page_value>` | Obtiene todos los comentarios de una encuesta. |
 | [Actualizar un comentario](#actualizar-un-commentario) | `PUT` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/update` | Actualiza un comentario de una encuesta. |
 | [Eliminar un comentario](#eliminar-un-commentario) | `DELETE` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/delete` | Elimina un comentario de una encuesta. |
+| [Agregar calificación](#agregar-calificación) | `POST` | `/api/feedbacks/survey/<str:survey_id>/qualify/add` | Agregar una calificación a una encuesta. |
+
 
 #### Agregar comentario
 
@@ -1308,6 +1310,46 @@ Content-Type: application/json
 {
   "status": "success",
   "message": "Comment successfully deleted."
+}
+```
+
+#### Agregar calificación
+
+##### Método HTTP
+
+```http
+POST /api/feedbacks/survey/<str:survey_id>/qualify/add
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `assessment` | `int` | **Requerido**.  Número de la calificación |
+
+> **NOTA**: El parámetro `assessment` solo acepta una escalara de valores de 1 a 5:
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+
+{
+    "assessment": 3
+}
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+  "status": "success",
+  "message": "Comment added successfully."
 }
 ```
 
