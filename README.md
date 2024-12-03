@@ -1127,6 +1127,7 @@ Content-Type: application/json
 |:------ | :----- | :-- | :---------- |
 | [Agregar comentario](#agregar-commentario) | `POST` | `/api/feedbacks/survey/<str:survey_id>/comment/add` | Agregar un comentario a una encuesta. |
 | [Obtener todos los comentarios de una encuesta](#obtener-todos-los-comentarios-de-una-encuesta) | `GET` | `/api/feedbacks/survey/<str:survey_id>/comment/all?page_size=<size_value>&page=<page_value>` | Obtiene todos los comentarios de una encuesta. |
+| [Actualizar un comentario](#actualizar-un-commentario) | `PUT` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/update` | Actualiza un comentario de una encuesta. |
 
 #### Agregar comentario
 
@@ -1233,3 +1234,44 @@ Content-Type: application/json
   }
 }
 ```
+
+#### Actualizar un comentario
+
+##### Método HTTP
+
+```http
+PUT /api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `survey_id` | `str` | **Requerido**.  ID de la encuesta |
+| `comment_id` | `int` | **Requerido**.  ID del comentario |
+| `content` | `string` | Contenido del comentario |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+
+{
+    "content": "La encuesta fue interesante."
+}
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+  "status": "success",
+  "message": "Comment updated successfully."
+}
+```
+

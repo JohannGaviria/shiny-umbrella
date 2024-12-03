@@ -113,3 +113,74 @@ def get_all_comments_survey(request, survey_id):
             'comments': response_data.data['results']
         }
     }, status=status.HTTP_200_OK)
+
+
+# Endpoint para actualizar un comentario de una encuesta
+@api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_comment_survey(request, survey_id, comment_id):
+    try:
+        # Busca la encuesta por su ID
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea al no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica si la encuesta es pública o privada
+    if not survey.is_public and survey.user != request.user:
+        # Verifica que el usuario este invitado a responder la encuesta
+        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
+        if not invitation:
+            # Respuesta erronea al usuario no tener permiso
+            return Response({
+                'status': 'error',
+                'message': 'You are not allowed to comment on the survey.'
+            }, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        # Busca el comentario de la encuesta por su ID
+        comment = Comment.objects.get(id=comment_id)
+    except Comment.DoesNotExist:
+        # Respuesta erronea al no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Comment not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica que el usuario es el creador
+    if comment.user != request.user:
+        # Respuesta erronea al usuario no ser el creador del comentario
+        return Response({
+            'status': 'error',
+            'message': 'The user is not the creator of the comment.'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Serializa los datos del comentario
+    comment_validation_serializer = CommentValidationSerializer(
+        comment,
+        data=request.data,
+        partial=True,
+        context={'request': request}
+    )
+
+    # Verifica que los datos sean válidos
+    if not comment_validation_serializer.is_valid():
+        # Respuesta erronea en la validación de los datos
+        return Response({
+            'status': 'error',
+            'message': 'Errors in data validation.',
+            'errors': comment_validation_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Actualiza el comentario de la encuesta
+    comment_validation_serializer.save()
+
+    # Respuesta exitosa al actualizar el comentario
+    return Response({
+        'status': 'success',
+        'message': 'Comment update successfully.'
+    }, status=status.HTTP_200_OK)
