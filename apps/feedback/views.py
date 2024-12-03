@@ -120,6 +120,16 @@ def get_all_comments_survey(request, survey_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def update_comment_survey(request, survey_id, comment_id):
+    try:
+        # Busca la encuesta por su ID
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea al no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
     # Verifica si la encuesta es pública o privada
     if not survey.is_public and survey.user != request.user:
         # Verifica que el usuario este invitado a responder la encuesta
@@ -130,16 +140,6 @@ def update_comment_survey(request, survey_id, comment_id):
                 'status': 'error',
                 'message': 'You are not allowed to comment on the survey.'
             }, status=status.HTTP_403_FORBIDDEN)
-        
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
-        # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
     
     try:
         # Busca el comentario de la encuesta por su ID
@@ -160,7 +160,12 @@ def update_comment_survey(request, survey_id, comment_id):
         }, status=status.HTTP_403_FORBIDDEN)
     
     # Serializa los datos del comentario
-    comment_validation_serializer = CommentValidationSerializer(comment, data=request.data, partial=True)
+    comment_validation_serializer = CommentValidationSerializer(
+        comment,
+        data=request.data,
+        partial=True,
+        context={'request': request}
+    )
 
     # Verifica que los datos sean válidos
     if not comment_validation_serializer.is_valid():
