@@ -1130,7 +1130,8 @@ Content-Type: application/json
 | [Actualizar un comentario](#actualizar-un-commentario) | `PUT` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/update` | Actualiza un comentario de una encuesta. |
 | [Eliminar un comentario](#eliminar-un-commentario) | `DELETE` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/delete` | Elimina un comentario de una encuesta. |
 | [Agregar calificación](#agregar-calificación) | `POST` | `/api/feedbacks/survey/<str:survey_id>/qualify/add` | Agregar una calificación a una encuesta. |
-
+| [Obtener todos las calificaciones de una encuesta](#obtener-todos-las-calificaciones-de-una-encuesta) | `GET` | `/api/feedbacks/survey/<str:survey_id>/qualify/all?page_size=<size_value>&page=<page_value>` | Obtiene todas las calificaciones de una encuesta. |
+| [Actualizar una calificación](#actualizar-una-calificación) | `PUT` | `/api/feedbacks/survey/<str:survey_id>/qualify/<int:qualify_id>/update` | Actualiza una calificación de una encuesta. |
 
 #### Agregar comentario
 
@@ -1353,12 +1354,12 @@ Content-Type: application/json
 }
 ```
 
-#### Obtener todos los comentarios de una encuesta
+#### Obtener todos las calificaciones de una encuesta
 
 ##### Método HTTP
 
 ```http
-GET /api/feedbacks/survey/<str:survey_id>/comment/all?page_size=<size_value>&page=<page_value>
+GET /api/feedbacks/survey/<str:survey_id>/qualify/all?page_size=<size_value>&page=<page_value>
 ```
 
 ##### Parámetros
@@ -1372,7 +1373,7 @@ GET /api/feedbacks/survey/<str:survey_id>/comment/all?page_size=<size_value>&pag
 
 > **NOTA**: Si los parámetros `page_size` y `page` no se incluyen en la URL, se aplicarán valores por defecto:
 >
-> - **Ejemplo**: `GET /api/feedbacks/survey/<str:survey_id>/comment/all`
+> - **Ejemplo**: `GET /api/feedbacks/survey/<str:survey_id>/qualify/all`
 >   - **page_size** será `10`, lo que significa que se mostrarán 10 elementos por página.
 >   - **page** será `1`, comenzando en la primera página de la paginación.
 > - **Recomendación**: Para navegar entre las páginas, debe incluir el parámetro page e indicar el número de la página a la que desea acceder.
@@ -1417,6 +1418,46 @@ Content-Type: application/json
       ...
     ]
   }
+}
+```
+
+#### Actualizar un comentario
+
+##### Método HTTP
+
+```http
+PUT /api/feedbacks/survey/<str:survey_id>/qualify/<int:qualify_id>/update
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `survey_id` | `str` | **Requerido**.  ID de la encuesta |
+| `qualify_id` | `int` | **Requerido**.  ID del comentario |
+| `assessmnet` | `int` | Número de la califiación |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+
+{
+    "assessment": 4
+}
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+  "status": "success",
+  "message": "Qualify updated successfully."
 }
 ```
 
