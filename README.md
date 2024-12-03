@@ -1353,3 +1353,70 @@ Content-Type: application/json
 }
 ```
 
+#### Obtener todos los comentarios de una encuesta
+
+##### Método HTTP
+
+```http
+GET /api/feedbacks/survey/<str:survey_id>/comment/all?page_size=<size_value>&page=<page_value>
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
+| `survey_id` | `string` | **Requerido**.  ID de la encuesta |
+| `size_value` | `int` | Valor del tamaño de elementos por página |
+| `page_value` | `int` | Valor de la página para navegar entre la paginación |
+
+> **NOTA**: Si los parámetros `page_size` y `page` no se incluyen en la URL, se aplicarán valores por defecto:
+>
+> - **Ejemplo**: `GET /api/feedbacks/survey/<str:survey_id>/comment/all`
+>   - **page_size** será `10`, lo que significa que se mostrarán 10 elementos por página.
+>   - **page** será `1`, comenzando en la primera página de la paginación.
+> - **Recomendación**: Para navegar entre las páginas, debe incluir el parámetro page e indicar el número de la página a la que desea acceder.
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+  "status": "success",
+  "message": "Qualifies successfully obtained.",
+  "data": {
+    "page_info": {
+      "count": 1,
+      "page_size": 10,
+      "links": {
+        "next": null,
+        "previous": null
+      }
+    },
+    "qualifies": [
+      {
+        "id": 1,
+        "assessment": 5,
+        "survey": "e4046be6-5b4e-4782-a1bc-f544527727b4",
+        "user": {
+          "id": 31,
+          "username": "ribavi",
+          "email": "ribavi5414@aleitar.com",
+          "date_joined": "2024-10-28T02:58:52.928663Z"
+        }
+      },
+      ...
+    ]
+  }
+}
+```
+
