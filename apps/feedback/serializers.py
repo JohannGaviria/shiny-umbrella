@@ -81,7 +81,7 @@ class QualifyValidationSerializer(serializers.ModelSerializer):
         Actualiza la calificación.
         """
         instance.user = self.context['request'].user
-        instance.content = validated_data.get('content', instance.content)
+        instance.assessment = validated_data.get('assessment', instance.assessment)
         instance.save()
         return instance
 

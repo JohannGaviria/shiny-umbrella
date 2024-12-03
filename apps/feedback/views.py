@@ -343,3 +343,74 @@ def get_all_qualifies_survey(request, survey_id):
             'qualifies': response_data.data['results']
         }
     }, status=status.HTTP_200_OK)
+
+
+# Endpoint para actualizar una calificación de una encuesta
+@api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_qualify_survey(request, survey_id, qualify_id):
+    try:
+        # Busca la encuesta por su ID
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea al no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica si la encuesta es pública o privada
+    if not survey.is_public and survey.user != request.user:
+        # Verifica que el usuario este invitado a responder la encuesta
+        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
+        if not invitation:
+            # Respuesta erronea al usuario no tener permiso
+            return Response({
+                'status': 'error',
+                'message': 'You are not allowed to qualify on the survey.'
+            }, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        # Busca la calificación de la encuesta por su ID
+        qualify = Qualify.objects.get(id=qualify_id)
+    except Qualify.DoesNotExist:
+        # Respuesta erronea al no encontrar la calificación
+        return Response({
+            'status': 'error',
+            'message': 'Qualify not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica que el usuario es el creador
+    if qualify.user != request.user:
+        # Respuesta erronea al usuario no ser el creador
+        return Response({
+            'status': 'error',
+            'message': 'The user is not the creator of the qualify.'
+        }, status=status.HTTP_403_FORBIDDEN)
+    
+    # Serializa los datos de la calificación
+    qualify_validation_serializer = QualifyValidationSerializer(
+        qualify,
+        data=request.data,
+        partial=True,
+        context={'request': request}
+    )
+
+    # Verifica que los datos sean válidos
+    if not qualify_validation_serializer.is_valid():
+        # Respuesta erronea en la validación de los datos
+        return Response({
+            'status': 'error',
+            'message': 'Errors in data validation.',
+            'errors': qualify_validation_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # Actualiza el comentario de la encuesta
+    qualify_validation_serializer.save()
+
+    # Respuesta exitosa al actualizar el comentario
+    return Response({
+        'status': 'success',
+        'message': 'Qualify updated successfully.'
+    }, status=status.HTTP_200_OK)
