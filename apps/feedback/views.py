@@ -6,8 +6,8 @@ from rest_framework import status
 from apps.surveys.models import Survey, Invitation
 from apps.core.utils import CustomPageNumberPagination
 from config.settings.base import REST_FRAMEWORK
-from .serializers import CommentValidationSerializer, CommentResponseSerializer, QualifyValidationSerializer
-from .models import Comment
+from .serializers import CommentValidationSerializer, CommentResponseSerializer, QualifyValidationSerializer, QualifyResponseSerializer
+from .models import Comment, Qualify
 
 
 # Endpoint para agregar un comentario a una encuesta
@@ -289,3 +289,57 @@ def add_qualify_survey(request, survey_id):
         'status': 'success',
         'message': 'Qualify added successfully.'
     }, status=status.HTTP_201_CREATED)
+
+
+#Endpoint para obtener todas las calificaciones de una encuesta
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_all_qualifies_survey(request, survey_id):
+    try:
+        # Busca la encuesta por su ID
+        survey = Survey.objects.get(id=survey_id)
+    except Survey.DoesNotExist:
+        # Respuesta erronea al no encontrar la encuesta
+        return Response({
+            'status': 'error',
+            'message': 'Survey not found.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    # Verifica si la encuesta es pública o privada
+    if not survey.is_public and survey.user != request.user:
+        # Verifica que el usuario este invitado a responder la encuesta
+        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
+        if not invitation:
+            # Respuesta erronea al usuario no tener permiso
+            return Response({
+                'status': 'error',
+                'message': 'You do not have permission to answer this survey.'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+    # Obtiene todas las calificaciones de la encuesta
+    qualifies = Qualify.objects.filter(survey=survey.id).order_by('id')
+
+    # Crea la paginación de los datos obtenidos
+    paginator = CustomPageNumberPagination()
+    paginated_queryset = paginator.paginate_queryset(qualifies, request)
+
+    # Serializa los datos de las calificaciones
+    qualify_response_serializer = QualifyResponseSerializer(paginated_queryset, many=True)
+
+    # Obtiene la respuesta con los datos paginados
+    response_data = paginator.get_paginated_response(qualify_response_serializer.data)
+
+    # Respuesta exitosa al obtener las encuestas
+    return Response({
+        'status': 'success',
+        'message': 'Qualifies successfully obtained.',
+        'data': {
+            'page_info': {
+                'count': response_data.data['count'],
+                'page_size': int(request.query_params.get('page_size', REST_FRAMEWORK['PAGE_SIZE'])),
+                'links': response_data.data['links']
+            },
+            'qualifies': response_data.data['results']
+        }
+    }, status=status.HTTP_200_OK)
