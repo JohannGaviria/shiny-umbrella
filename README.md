@@ -15,8 +15,8 @@ Desarrollo de una API REST que permite a los usuarios crear y participar en encu
 - [Endpoints](#endpoints)
     - [Usuarios](#usuarios)
     - [Encuestas](#encuestas)
-    - [Feedback](#Feedback)
-
+    - [Feedback](#feedback)
+    - [Analisis](#analisis)
 
 ## Instalación
 
@@ -1125,7 +1125,7 @@ Content-Type: application/json
 
 | Nombre | Método | Url | Descripción |
 |:------ | :----- | :-- | :---------- |
-| [Agregar comentario](#agregar-commentario) | `POST` | `/api/feedbacks/survey/<str:survey_id>/comment/add` | Agregar un comentario a una encuesta. |
+| [Agregar comentario](#agregar-comentario) | `POST` | `/api/feedbacks/survey/<str:survey_id>/comment/add` | Agregar un comentario a una encuesta. |
 | [Obtener todos los comentarios de una encuesta](#obtener-todos-los-comentarios-de-una-encuesta) | `GET` | `/api/feedbacks/survey/<str:survey_id>/comment/all?page_size=<size_value>&page=<page_value>` | Obtiene todos los comentarios de una encuesta. |
 | [Actualizar un comentario](#actualizar-un-commentario) | `PUT` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/update` | Actualiza un comentario de una encuesta. |
 | [Eliminar un comentario](#eliminar-un-commentario) | `DELETE` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/delete` | Elimina un comentario de una encuesta. |
@@ -1494,5 +1494,45 @@ Content-Type: application/json
 {
   "status": "success",
   "message": "Qualify successfully deleted."
+}
+```
+
+### Analisis
+
+| Nombre | Método | Url | Descripción |
+|:------ | :----- | :-- | :---------- |
+| [Exportar detalles del analisis](#exportar-detalles-del-analisis) | `GET` | `/api/analysis/survey/<str:survey_id>/export` | Exporta los detalles del analisis de la encuestas |
+
+#### Exportar detalles del analisis
+
+##### Método HTTP
+
+```http
+GET /api/analysis/survey/<str:survey_id>/export
+```
+
+##### Parámetros
+
+| Parámetro | Tipo     | Descripción                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Requerido**.  Token de autenticación |
+| `survey_id` | `string` | **Requerido**.  ID de la encuesta |
+
+##### Ejemplo de solicitud
+
+```http
+Content-Type: application/json
+Authorization: Token <token>
+```
+
+##### Ejemplo de respuesta exitosa
+
+```http
+HTTP/1.1 200 Ok
+Content-Type: application/json
+
+{
+    "status": "success",
+    "message': "Export of the analysis successfully."
 }
 ```
