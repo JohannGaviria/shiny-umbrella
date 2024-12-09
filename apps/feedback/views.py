@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from apps.surveys.models import Survey, Invitation
 from apps.core.utils import CustomPageNumberPagination, validate_serializer
+from apps.surveys.utils import get_survey_by_id
 from config.settings.base import REST_FRAMEWORK
 from .serializers import CommentValidationSerializer, CommentResponseSerializer, QualifyValidationSerializer, QualifyResponseSerializer
 from .models import Comment, Qualify
@@ -15,15 +16,13 @@ from .models import Comment, Qualify
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def add_comment_survey(request, survey_id):
-    try:
-        # Busca la encuesta mediante su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica si la encuesta es pública o privada
     if not survey.is_public and survey.user != request.user:
@@ -65,15 +64,13 @@ def add_comment_survey(request, survey_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_all_comments_survey(request, survey_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica si la encuesta es pública o privada
     if not survey.is_public and survey.user != request.user:
@@ -119,15 +116,13 @@ def get_all_comments_survey(request, survey_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def update_comment_survey(request, survey_id, comment_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica si la encuesta es pública o privada
     if not survey.is_public and survey.user != request.user:
@@ -189,15 +184,13 @@ def update_comment_survey(request, survey_id, comment_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_comment_survey(request, survey_id, comment_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica si la encuesta es pública o privada
     if not survey.is_public and survey.user != request.user:
@@ -243,15 +236,13 @@ def delete_comment_survey(request, survey_id, comment_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def add_qualify_survey(request, survey_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica si la encuesta es pública o privada
     if not survey.is_public and survey.user != request.user:
@@ -293,15 +284,13 @@ def add_qualify_survey(request, survey_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_all_qualifies_survey(request, survey_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica si la encuesta es pública o privada
     if not survey.is_public and survey.user != request.user:
@@ -347,15 +336,13 @@ def get_all_qualifies_survey(request, survey_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def update_qualify_survey(request, survey_id, qualify_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica si la encuesta es pública o privada
     if not survey.is_public and survey.user != request.user:
@@ -417,15 +404,13 @@ def update_qualify_survey(request, survey_id, qualify_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_qualify_survey(request, survey_id, qualify_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica si la encuesta es pública o privada
     if not survey.is_public and survey.user != request.user:
