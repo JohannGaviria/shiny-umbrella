@@ -37,3 +37,14 @@ def validate_serializer(serializer):
             'errors': serializer.errors
         }
     return None
+
+
+def verify_user_is_creator(element, request_user, message):
+    # Verifica que el usuario no sea creador
+    if element.user != request_user:
+        # Respuesta erronea al usuario no ser el creador
+        return {
+            'status': 'error',
+            'message': message
+        }
+    return None

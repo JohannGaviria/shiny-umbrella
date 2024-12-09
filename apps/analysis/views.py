@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from apps.surveys.utils import get_survey_by_id
+from apps.core.utils import verify_user_is_creator
 from .utils import *
 
 
@@ -20,13 +21,11 @@ def export_analysis_details(request, survey_id):
         # Respuesta erronea al no encontrar la encuesta
         return Response(survey, status=status.HTTP_404_NOT_FOUND)
 
-    # Verifica que el usuario es el creador
-    if survey.user != request.user:
-        # Respuesta errónea al usuario no ser el creador
-        return Response({
-            'status': 'error',
-            'message': 'The user is not the creator of the survey.'
-        }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica que el usuario sea el creador
+    verification_result = verify_user_is_creator(survey, request.user, message='The user is not the creator of the survey.')
+    if verification_result:
+        # Respuesta erronea al usuario no ser el creador
+        return Response(verification_result, status=status.HTTP_403_FORBIDDEN)
 
     # Respuesta exitosa a exportar el analisis
     return Response({
