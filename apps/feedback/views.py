@@ -3,11 +3,12 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from apps.surveys.models import Survey, Invitation
-from apps.core.utils import CustomPageNumberPagination
+from apps.core.utils import CustomPageNumberPagination, validate_serializer, verify_user_is_creator
+from apps.surveys.utils import get_survey_by_id, check_user_invited, check_survey_is_public
 from config.settings.base import REST_FRAMEWORK
 from .serializers import CommentValidationSerializer, CommentResponseSerializer, QualifyValidationSerializer, QualifyResponseSerializer
 from .models import Comment, Qualify
+from .utils import get_comment_by_id, get_qualify_by_id
 
 
 # Endpoint para agregar un comentario a una encuesta
@@ -15,26 +16,21 @@ from .models import Comment, Qualify
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def add_comment_survey(request, survey_id):
-    try:
-        # Busca la encuesta mediante su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica si la encuesta es pública o privada
-    if not survey.is_public and survey.user != request.user:
-        # Verifica que el usuario este invitado a responder la encuesta
-        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
-        if not invitation:
-            # Respuesta erronea al usuario no tener permiso
-            return Response({
-                'status': 'error',
-                'message': 'You do not have permission to answer this survey.'
-            }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica si la encuesta es pública
+    if not check_survey_is_public(survey):
+        # Verifica si el usuario esta invitado
+        user_not_invited = check_user_invited(survey, request.user.email)
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
+            # Respuesta erronea al usuario no cumplir la verificación
+            return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
     # Agrega el ID de la encuesta a los datos
     request.data['survey'] = survey_id
@@ -42,14 +38,13 @@ def add_comment_survey(request, survey_id):
     # Serializa los datos para la validación
     comment_validation_serializer = CommentValidationSerializer(data=request.data, context={'request': request})
 
-    # Verifica que los datos son válidos
-    if not comment_validation_serializer.is_valid():
-        # Respuesta de error en la validación de datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': comment_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(comment_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
     
     # Guarda el comentario
     comment_validation_serializer.save()
@@ -66,26 +61,21 @@ def add_comment_survey(request, survey_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_all_comments_survey(request, survey_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica si la encuesta es pública o privada
-    if not survey.is_public and survey.user != request.user:
-        # Verifica que el usuario este invitado a responder la encuesta
-        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
-        if not invitation:
-            # Respuesta erronea al usuario no tener permiso
-            return Response({
-                'status': 'error',
-                'message': 'You do not have permission to answer this survey.'
-            }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica si la encuesta es pública y el usuario el creador
+    if not check_survey_is_public(survey) and verify_user_is_creator(survey, request.user, message='You do not have permission to comment this survey.'):
+        # Verifica si el usuario esta invitado
+        user_not_invited = check_user_invited(survey, request.user.email)
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
+            # Respuesta erronea al usuario no cumplir la verificación
+            return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
         
     # Obtiene todos los comentarios de la encuesta
     comments = Comment.objects.filter(survey=survey.id).order_by('id')
@@ -120,44 +110,35 @@ def get_all_comments_survey(request, survey_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def update_comment_survey(request, survey_id, comment_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica si la encuesta es pública o privada
-    if not survey.is_public and survey.user != request.user:
-        # Verifica que el usuario este invitado a responder la encuesta
-        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
-        if not invitation:
-            # Respuesta erronea al usuario no tener permiso
-            return Response({
-                'status': 'error',
-                'message': 'You are not allowed to comment on the survey.'
-            }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica si la encuesta es pública
+    if not check_survey_is_public(survey):
+        # Verifica si el usuario esta invitado
+        user_not_invited = check_user_invited(survey, request.user.email)
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
+            # Respuesta erronea al usuario no cumplir la verificación
+            return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
-    try:
-        # Busca el comentario de la encuesta por su ID
-        comment = Comment.objects.get(id=comment_id)
-    except Comment.DoesNotExist:
-        # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Comment not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+    # Obtiene la respuesta
+    comment = get_comment_by_id(comment_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(comment, dict) and comment.get('status') == 'error':
+        # Respuesta erronea al no encontrar el comentario
+        return Response(comment, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica que el usuario es el creador
-    if comment.user != request.user:
-        # Respuesta erronea al usuario no ser el creador del comentario
-        return Response({
-            'status': 'error',
-            'message': 'The user is not the creator of the comment.'
-        }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica que el usuario sea el creador
+    verification_result = verify_user_is_creator(comment, request.user, message='The user is not the creator of the comment.')
+    if verification_result:
+        # Respuesta erronea al usuario no ser el creador
+        return Response(verification_result, status=status.HTTP_403_FORBIDDEN)
     
     # Serializa los datos del comentario
     comment_validation_serializer = CommentValidationSerializer(
@@ -167,14 +148,13 @@ def update_comment_survey(request, survey_id, comment_id):
         context={'request': request}
     )
 
-    # Verifica que los datos sean válidos
-    if not comment_validation_serializer.is_valid():
-        # Respuesta erronea en la validación de los datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': comment_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(comment_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
 
     # Actualiza el comentario de la encuesta
     comment_validation_serializer.save()
@@ -191,44 +171,35 @@ def update_comment_survey(request, survey_id, comment_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_comment_survey(request, survey_id, comment_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica si la encuesta es pública o privada
-    if not survey.is_public and survey.user != request.user:
-        # Verifica que el usuario este invitado a responder la encuesta
-        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
-        if not invitation:
-            # Respuesta erronea al usuario no tener permiso
-            return Response({
-                'status': 'error',
-                'message': 'You are not allowed to comment on the survey.'
-            }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica si la encuesta es pública
+    if not check_survey_is_public(survey):
+        # Verifica si el usuario esta invitado
+        user_not_invited = check_user_invited(survey, request.user.email)
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
+            # Respuesta erronea al usuario no cumplir la verificación
+            return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
-    try:
-        # Busca el comentario de la encuesta por su ID
-        comment = Comment.objects.get(id=comment_id)
-    except Comment.DoesNotExist:
-        # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Comment not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+    # Obtiene la respuesta
+    comment = get_comment_by_id(comment_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(comment, dict) and comment.get('status') == 'error':
+        # Respuesta erronea al no encontrar el comentario
+        return Response(comment, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica que el usuario es el creador
-    if comment.user != request.user:
-        # Respuesta erronea al usuario no ser el creador del comentario
-        return Response({
-            'status': 'error',
-            'message': 'The user is not the creator of the comment.'
-        }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica que el usuario sea el creador
+    verification_result = verify_user_is_creator(comment, request.user, message='The user is not the creator of the comment.')
+    if verification_result:
+        # Respuesta erronea al usuario no ser el creador
+        return Response(verification_result, status=status.HTTP_403_FORBIDDEN)
     
     # Elimina el comentario de la encuesta
     comment.delete()
@@ -245,26 +216,21 @@ def delete_comment_survey(request, survey_id, comment_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def add_qualify_survey(request, survey_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica si la encuesta es pública o privada
-    if not survey.is_public and survey.user != request.user:
-        # Verifica que el usuario este invitado a responder la encuesta
-        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
-        if not invitation:
-            # Respuesta erronea al usuario no tener permiso
-            return Response({
-                'status': 'error',
-                'message': 'You are not allowed to qualify on the survey.'
-            }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica si la encuesta es pública
+    if not check_survey_is_public(survey):
+        # Verifica si el usuario esta invitado
+        user_not_invited = check_user_invited(survey, request.user.email)
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
+            # Respuesta erronea al usuario no cumplir la verificación
+            return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
     # Agrega el ID de la encuesta a los datos
     request.data['survey'] = survey_id
@@ -272,14 +238,13 @@ def add_qualify_survey(request, survey_id):
     # Serializa los datos para la validación
     qualify_validation_serializer = QualifyValidationSerializer(data=request.data, context={'request': request})
 
-    # Verifica que los datos son válidos
-    if not qualify_validation_serializer.is_valid():
-        # Respuesta de error en la validación de datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': qualify_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(qualify_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
     
     # Guarda la calificación
     qualify_validation_serializer.save()
@@ -296,26 +261,21 @@ def add_qualify_survey(request, survey_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_all_qualifies_survey(request, survey_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica si la encuesta es pública o privada
-    if not survey.is_public and survey.user != request.user:
-        # Verifica que el usuario este invitado a responder la encuesta
-        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
-        if not invitation:
-            # Respuesta erronea al usuario no tener permiso
-            return Response({
-                'status': 'error',
-                'message': 'You do not have permission to answer this survey.'
-            }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica si la encuesta es pública y el usuario el creador
+    if not check_survey_is_public(survey) and verify_user_is_creator(survey, request.user, message='You do not have permission to rate this survey.'):
+        # Verifica si el usuario esta invitado
+        user_not_invited = check_user_invited(survey, request.user.email)
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
+            # Respuesta erronea al usuario no cumplir la verificación
+            return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
         
     # Obtiene todas las calificaciones de la encuesta
     qualifies = Qualify.objects.filter(survey=survey.id).order_by('id')
@@ -350,44 +310,35 @@ def get_all_qualifies_survey(request, survey_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def update_qualify_survey(request, survey_id, qualify_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica si la encuesta es pública o privada
-    if not survey.is_public and survey.user != request.user:
-        # Verifica que el usuario este invitado a responder la encuesta
-        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
-        if not invitation:
-            # Respuesta erronea al usuario no tener permiso
-            return Response({
-                'status': 'error',
-                'message': 'You are not allowed to qualify on the survey.'
-            }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica si la encuesta es pública
+    if not check_survey_is_public(survey):
+        # Verifica si el usuario esta invitado
+        user_not_invited = check_user_invited(survey, request.user.email)
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
+            # Respuesta erronea al usuario no cumplir la verificación
+            return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
-    try:
-        # Busca la calificación de la encuesta por su ID
-        qualify = Qualify.objects.get(id=qualify_id)
-    except Qualify.DoesNotExist:
+    # Obtiene la respuesta
+    qualify = get_qualify_by_id(qualify_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(qualify, dict) and qualify.get('status') == 'error':
         # Respuesta erronea al no encontrar la calificación
-        return Response({
-            'status': 'error',
-            'message': 'Qualify not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(qualify, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica que el usuario es el creador
-    if qualify.user != request.user:
+    # Verifica que el usuario sea el creador
+    verification_result = verify_user_is_creator(qualify, request.user, message='The user is not the creator of the rating.')
+    if verification_result:
         # Respuesta erronea al usuario no ser el creador
-        return Response({
-            'status': 'error',
-            'message': 'The user is not the creator of the qualify.'
-        }, status=status.HTTP_403_FORBIDDEN)
+        return Response(verification_result, status=status.HTTP_403_FORBIDDEN)
     
     # Serializa los datos de la calificación
     qualify_validation_serializer = QualifyValidationSerializer(
@@ -397,14 +348,13 @@ def update_qualify_survey(request, survey_id, qualify_id):
         context={'request': request}
     )
 
-    # Verifica que los datos sean válidos
-    if not qualify_validation_serializer.is_valid():
-        # Respuesta erronea en la validación de los datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': qualify_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(qualify_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
 
     # Actualiza el comentario de la encuesta
     qualify_validation_serializer.save()
@@ -421,44 +371,35 @@ def update_qualify_survey(request, survey_id, qualify_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_qualify_survey(request, survey_id, qualify_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
         # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica si la encuesta es pública o privada
-    if not survey.is_public and survey.user != request.user:
-        # Verifica que el usuario este invitado a responder la encuesta
-        invitation = Invitation.objects.filter(survey=survey, email=request.user.email).first()
-        if not invitation:
-            # Respuesta erronea al usuario no tener permiso
-            return Response({
-                'status': 'error',
-                'message': 'You are not allowed to comment on the survey.'
-            }, status=status.HTTP_403_FORBIDDEN)
+    # Verifica si la encuesta es pública
+    if not check_survey_is_public(survey):
+        # Verifica si el usuario esta invitado
+        user_not_invited = check_user_invited(survey, request.user.email)
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
+            # Respuesta erronea al usuario no cumplir la verificación
+            return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
-    try:
-        # Busca la calificación de la encuesta por su ID
-        qualify = Qualify.objects.get(id=qualify_id)
-    except Qualify.DoesNotExist:
-        # Respuesta erronea al no encontrar la califiación
-        return Response({
-            'status': 'error',
-            'message': 'Qualify not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+    # Obtiene la respuesta
+    qualify = get_qualify_by_id(qualify_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(qualify, dict) and qualify.get('status') == 'error':
+        # Respuesta erronea al no encontrar la calificación
+        return Response(qualify, status=status.HTTP_404_NOT_FOUND)
     
-    # Verifica que el usuario es el creador
-    if qualify.user != request.user:
+    # Verifica que el usuario sea el creador
+    verification_result = verify_user_is_creator(qualify, request.user, message='The user is not the creator of the rating.')
+    if verification_result:
         # Respuesta erronea al usuario no ser el creador
-        return Response({
-            'status': 'error',
-            'message': 'The user is not the creator of the qualify.'
-        }, status=status.HTTP_403_FORBIDDEN)
+        return Response(verification_result, status=status.HTTP_403_FORBIDDEN)
     
     # Elimina la califiación de la encuesta
     qualify.delete()

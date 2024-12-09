@@ -11,6 +11,7 @@ from .serializers import UserValidationSerializer, UserResponseSerializer, UserU
 from .utils import confirm_verification_token, generate_verification_token
 from .models import VerifyAccount
 from apps.notification.utils import EmailNotification
+from apps.core.utils import validate_serializer
 from datetime import timedelta
 
 
@@ -20,14 +21,13 @@ def sign_up(request):
     # Serializa los datos
     user_validation_serializer = UserValidationSerializer(data=request.data)
 
-    # Verifica que los datos son válidos
-    if not user_validation_serializer.is_valid():
-        # Respuesta de error en la validación de datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': user_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(user_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
     
     # Guarda al nuevo usuario
     user = user_validation_serializer.save()
@@ -233,14 +233,13 @@ def update_user(request):
     # Serializa los datos
     user_update_serializer = UserUpdateSerializer(user, data=request.data, partial=True)
 
-    # Verifica que los datos sean validos
-    if not user_update_serializer.is_valid():
-        # Respuesta de error en la validación de datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': user_update_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(user_update_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
     
     # Guarda los cambios del usuario
     user = user_update_serializer.save()
