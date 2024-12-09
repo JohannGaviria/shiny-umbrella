@@ -3,7 +3,8 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from apps.surveys.models import Survey
+from apps.surveys.utils import get_survey_by_id
+from apps.core.utils import verify_user_is_creator
 from .utils import *
 
 
@@ -12,23 +13,19 @@ from .utils import *
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def export_analysis_details(request, survey_id):
-    try:
-        # Busca la encuesta por su ID
-        survey = Survey.objects.get(id=survey_id)
-    except Survey.DoesNotExist:
-        # Respuesta errónea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Survey not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+    # Obtiene la respuesta
+    survey = get_survey_by_id(survey_id)
 
-    # Verifica que el usuario es el creador
-    if survey.user != request.user:
-        # Respuesta errónea al usuario no ser el creador
-        return Response({
-            'status': 'error',
-            'message': 'The user is not the creator of the survey.'
-        }, status=status.HTTP_403_FORBIDDEN)
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(survey, dict) and survey.get('status') == 'error':
+        # Respuesta erronea al no encontrar la encuesta
+        return Response(survey, status=status.HTTP_404_NOT_FOUND)
+
+    # Verifica que el usuario sea el creador
+    verification_result = verify_user_is_creator(survey, request.user, message='The user is not the creator of the survey.')
+    if verification_result:
+        # Respuesta erronea al usuario no ser el creador
+        return Response(verification_result, status=status.HTTP_403_FORBIDDEN)
 
     # Respuesta exitosa a exportar el analisis
     return Response({
