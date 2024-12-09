@@ -9,6 +9,7 @@ from .serializers import SurveyValidationSerializer, SurveyResponseSerializer, A
 from .models import Survey, Invitation
 from apps.notification.utils import EmailNotification
 from apps.core.utils import CustomPageNumberPagination
+from apps.core.utils import validate_serializer
 from config.settings.base import REST_FRAMEWORK
 
 
@@ -20,14 +21,13 @@ def create_survey(request):
     # Serilaiza los datos
     survey_validation_serializer = SurveyValidationSerializer(data=request.data, context={'request': request})
 
-    # Verifica que los datos sean válidos
-    if not survey_validation_serializer.is_valid():
-        # Respuesta de error en la validación de datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': survey_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(survey_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
     
     # Guarda la encuesta
     survey = survey_validation_serializer.save()
@@ -204,14 +204,13 @@ def update_survey(request, survey_id):
     # Serializa los datos de la encueta
     survey_validation_serializer = SurveyValidationSerializer(survey, data=request.data, partial=True)
 
-    # Verifica que los datos sean válidos
-    if not survey_validation_serializer.is_valid():
-        # Respuesta erronea en la validación de los datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': survey_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(survey_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
     
     # Actualiza la encuesta
     survey = survey_validation_serializer.save()
@@ -317,14 +316,13 @@ def answer_survey(request, survey_id):
         # Serializa los datos de la respuesta
         answer_validation_serializer = AnswerValidationSerializer(data=answer_data)
 
-        # Verifica que los datos son válidos
-        if not answer_validation_serializer.is_valid():
-            # Respuesta erronea al no ser válidos los datos
-            return Response({
-                'status': 'error',
-                'message': 'Errors in data validation.',
-                'errors': answer_validation_serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # Obtiene la validación del serializer
+        validation_error = validate_serializer(answer_validation_serializer)
+
+        # Verifica la validación del serializer
+        if validation_error:
+            # Respuesta de error en la validación del serializer
+            return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
         
         # Guarda la respuesta validada
         answer = answer_validation_serializer.save()

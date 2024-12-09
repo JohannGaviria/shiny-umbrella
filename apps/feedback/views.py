@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from apps.surveys.models import Survey, Invitation
-from apps.core.utils import CustomPageNumberPagination
+from apps.core.utils import CustomPageNumberPagination, validate_serializer
 from config.settings.base import REST_FRAMEWORK
 from .serializers import CommentValidationSerializer, CommentResponseSerializer, QualifyValidationSerializer, QualifyResponseSerializer
 from .models import Comment, Qualify
@@ -42,14 +42,13 @@ def add_comment_survey(request, survey_id):
     # Serializa los datos para la validación
     comment_validation_serializer = CommentValidationSerializer(data=request.data, context={'request': request})
 
-    # Verifica que los datos son válidos
-    if not comment_validation_serializer.is_valid():
-        # Respuesta de error en la validación de datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': comment_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(comment_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
     
     # Guarda el comentario
     comment_validation_serializer.save()
@@ -167,14 +166,13 @@ def update_comment_survey(request, survey_id, comment_id):
         context={'request': request}
     )
 
-    # Verifica que los datos sean válidos
-    if not comment_validation_serializer.is_valid():
-        # Respuesta erronea en la validación de los datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': comment_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(comment_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
 
     # Actualiza el comentario de la encuesta
     comment_validation_serializer.save()
@@ -272,14 +270,13 @@ def add_qualify_survey(request, survey_id):
     # Serializa los datos para la validación
     qualify_validation_serializer = QualifyValidationSerializer(data=request.data, context={'request': request})
 
-    # Verifica que los datos son válidos
-    if not qualify_validation_serializer.is_valid():
-        # Respuesta de error en la validación de datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': qualify_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(qualify_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
     
     # Guarda la calificación
     qualify_validation_serializer.save()
@@ -397,14 +394,13 @@ def update_qualify_survey(request, survey_id, qualify_id):
         context={'request': request}
     )
 
-    # Verifica que los datos sean válidos
-    if not qualify_validation_serializer.is_valid():
-        # Respuesta erronea en la validación de los datos
-        return Response({
-            'status': 'error',
-            'message': 'Errors in data validation.',
-            'errors': qualify_validation_serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+    # Obtiene la validación del serializer
+    validation_error = validate_serializer(qualify_validation_serializer)
+
+    # Verifica la validación del serializer
+    if validation_error:
+        # Respuesta de error en la validación del serializer
+        return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
 
     # Actualiza el comentario de la encuesta
     qualify_validation_serializer.save()
