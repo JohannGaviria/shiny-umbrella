@@ -3,12 +3,12 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from apps.surveys.models import Invitation
 from apps.core.utils import CustomPageNumberPagination, validate_serializer, verify_user_is_creator
 from apps.surveys.utils import get_survey_by_id, check_user_invited, check_survey_is_public
 from config.settings.base import REST_FRAMEWORK
 from .serializers import CommentValidationSerializer, CommentResponseSerializer, QualifyValidationSerializer, QualifyResponseSerializer
 from .models import Comment, Qualify
+from .utils import get_comment_by_id, get_qualify_by_id
 
 
 # Endpoint para agregar un comentario a una encuesta
@@ -126,15 +126,13 @@ def update_comment_survey(request, survey_id, comment_id):
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
-    try:
-        # Busca el comentario de la encuesta por su ID
-        comment = Comment.objects.get(id=comment_id)
-    except Comment.DoesNotExist:
-        # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Comment not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+    # Obtiene la respuesta
+    comment = get_comment_by_id(comment_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(comment, dict) and comment.get('status') == 'error':
+        # Respuesta erronea al no encontrar el comentario
+        return Response(comment, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica que el usuario sea el creador
     verification_result = verify_user_is_creator(comment, request.user, message='The user is not the creator of the comment.')
@@ -189,15 +187,13 @@ def delete_comment_survey(request, survey_id, comment_id):
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
-    try:
-        # Busca el comentario de la encuesta por su ID
-        comment = Comment.objects.get(id=comment_id)
-    except Comment.DoesNotExist:
-        # Respuesta erronea al no encontrar la encuesta
-        return Response({
-            'status': 'error',
-            'message': 'Comment not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+    # Obtiene la respuesta
+    comment = get_comment_by_id(comment_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(comment, dict) and comment.get('status') == 'error':
+        # Respuesta erronea al no encontrar el comentario
+        return Response(comment, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica que el usuario sea el creador
     verification_result = verify_user_is_creator(comment, request.user, message='The user is not the creator of the comment.')
@@ -330,15 +326,13 @@ def update_qualify_survey(request, survey_id, qualify_id):
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
-    try:
-        # Busca la calificación de la encuesta por su ID
-        qualify = Qualify.objects.get(id=qualify_id)
-    except Qualify.DoesNotExist:
+    # Obtiene la respuesta
+    qualify = get_qualify_by_id(qualify_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(qualify, dict) and qualify.get('status') == 'error':
         # Respuesta erronea al no encontrar la calificación
-        return Response({
-            'status': 'error',
-            'message': 'Qualify not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+        return Response(qualify, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica que el usuario sea el creador
     verification_result = verify_user_is_creator(qualify, request.user, message='The user is not the creator of the rating.')
@@ -393,15 +387,13 @@ def delete_qualify_survey(request, survey_id, qualify_id):
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
-    try:
-        # Busca la calificación de la encuesta por su ID
-        qualify = Qualify.objects.get(id=qualify_id)
-    except Qualify.DoesNotExist:
-        # Respuesta erronea al no encontrar la califiación
-        return Response({
-            'status': 'error',
-            'message': 'Qualify not found.'
-        }, status=status.HTTP_404_NOT_FOUND)
+    # Obtiene la respuesta
+    qualify = get_qualify_by_id(qualify_id)
+
+    # Comprueba si la función devolvió un diccionario de error
+    if isinstance(qualify, dict) and qualify.get('status') == 'error':
+        # Respuesta erronea al no encontrar la calificación
+        return Response(qualify, status=status.HTTP_404_NOT_FOUND)
     
     # Verifica que el usuario sea el creador
     verification_result = verify_user_is_creator(qualify, request.user, message='The user is not the creator of the rating.')
