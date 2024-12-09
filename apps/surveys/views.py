@@ -276,7 +276,7 @@ def answer_survey(request, survey_id):
     if not check_survey_is_public(survey) and verify_user_is_creator(survey, request.user, message='You do not have permission to answer this survey.'):
         # Verifica si el usuario esta invitado
         user_not_invited = check_user_invited(survey, request.user.email)
-        if isinstance(user_not_invited, dict) and survey.get('status') == 'error':
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
 

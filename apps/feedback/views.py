@@ -28,7 +28,7 @@ def add_comment_survey(request, survey_id):
     if not check_survey_is_public(survey):
         # Verifica si el usuario esta invitado
         user_not_invited = check_user_invited(survey, request.user.email)
-        if isinstance(user_not_invited, dict) and survey.get('status') == 'error':
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
@@ -73,7 +73,7 @@ def get_all_comments_survey(request, survey_id):
     if not check_survey_is_public(survey) and verify_user_is_creator(survey, request.user, message='You do not have permission to comment this survey.'):
         # Verifica si el usuario esta invitado
         user_not_invited = check_user_invited(survey, request.user.email)
-        if isinstance(user_not_invited, dict) and survey.get('status') == 'error':
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
         
@@ -122,7 +122,7 @@ def update_comment_survey(request, survey_id, comment_id):
     if not check_survey_is_public(survey):
         # Verifica si el usuario esta invitado
         user_not_invited = check_user_invited(survey, request.user.email)
-        if isinstance(user_not_invited, dict) and survey.get('status') == 'error':
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
@@ -183,7 +183,7 @@ def delete_comment_survey(request, survey_id, comment_id):
     if not check_survey_is_public(survey):
         # Verifica si el usuario esta invitado
         user_not_invited = check_user_invited(survey, request.user.email)
-        if isinstance(user_not_invited, dict) and survey.get('status') == 'error':
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
@@ -228,7 +228,7 @@ def add_qualify_survey(request, survey_id):
     if not check_survey_is_public(survey):
         # Verifica si el usuario esta invitado
         user_not_invited = check_user_invited(survey, request.user.email)
-        if isinstance(user_not_invited, dict) and survey.get('status') == 'error':
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
@@ -273,7 +273,7 @@ def get_all_qualifies_survey(request, survey_id):
     if not check_survey_is_public(survey) and verify_user_is_creator(survey, request.user, message='You do not have permission to rate this survey.'):
         # Verifica si el usuario esta invitado
         user_not_invited = check_user_invited(survey, request.user.email)
-        if isinstance(user_not_invited, dict) and survey.get('status') == 'error':
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
         
@@ -322,7 +322,7 @@ def update_qualify_survey(request, survey_id, qualify_id):
     if not check_survey_is_public(survey):
         # Verifica si el usuario esta invitado
         user_not_invited = check_user_invited(survey, request.user.email)
-        if isinstance(user_not_invited, dict) and survey.get('status') == 'error':
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
@@ -383,7 +383,7 @@ def delete_qualify_survey(request, survey_id, qualify_id):
     if not check_survey_is_public(survey):
         # Verifica si el usuario esta invitado
         user_not_invited = check_user_invited(survey, request.user.email)
-        if isinstance(user_not_invited, dict) and survey.get('status') == 'error':
+        if isinstance(user_not_invited, dict) and user_not_invited.get('status') == 'error':
             # Respuesta erronea al usuario no cumplir la verificación
             return Response(user_not_invited, status=status.HTTP_403_FORBIDDEN)
     
