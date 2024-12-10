@@ -6,8 +6,7 @@ Desarrollo de una API REST que permite a los usuarios crear y participar en encu
 
 ## Tecnologías Utilizadas
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)
-
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) ![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) ![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)
 
 ## Tabla de Contenidos
 
@@ -16,7 +15,7 @@ Desarrollo de una API REST que permite a los usuarios crear y participar en encu
     - [Usuarios](#usuarios)
     - [Encuestas](#encuestas)
     - [Feedback](#feedback)
-    - [Analisis](#analisis)
+    - [Análisis](#análisis)
 
 ## Instalación
 
@@ -47,27 +46,27 @@ source venv/bin/activate
 ```
 
 3. **Crea las variables de entorno:**
-- Crea un archivo `.env` en la ruta raiz del proyecto y configura las siguientes variables:
-    - `EMAIL` -> Correo electronico para el envio de notificaciones por email.
-    - `PASSWORD` -> La contraseña del correo electronico.
-    - `SECURITY_PASSWORD_SALT` -> Contraseña segura para que el módulo itsdangerous pueda generar y verificar tokens de forma segura.
-    - `FRONTEND_URL` -> Generar la URL de verificación que se enviará por correo electrónico.
+- Crea un archivo `.env` en la raíz del proyecto y configura las siguientes variables:
+    - `EMAIL` -> Correo electrónico para el envío de notificaciones por email.
+    - `PASSWORD` -> Contraseña del correo electrónico.
+    - `SECURITY_PASSWORD_SALT` -> Contraseña segura que permitirá al módulo `itsdangerous` generar y verificar tokens de forma segura.
+    - `FRONTEND_URL` -> URL de verificación que se enviará por correo electrónico.
 
-3. **Instalar las dependencias:**
+4. **Instalar las dependencias:**
 
 ```bash
 cd shiny-umbrella
 pip install -r requirements.txt
 ```
 
-4. **Crea las migraciones:**
+5. **Crea las migraciones:**
 
 ```bash
 python manage.py makemigrations --settings=config.settings.development
 python manage.py migrate --settings=config.settings.development
 ```
 
-5. **Ejecutar el servidor:**
+6. **Ejecutar el servidor:**
 
 ```bash
 python manage.py runserver --settings=config.settings.development
@@ -75,18 +74,20 @@ python manage.py runserver --settings=config.settings.development
 
 ¡Listo! El proyecto ahora debería estar en funcionamiento en tu entorno local. Puedes acceder a él desde tu navegador web visitando `http://127.0.0.1:8000/`.
 
+---
+
 ## Endpoints
 
 ### Usuarios
 
-| Nombre | Método | Url | Descripción |
+| Nombre | Método | URL | Descripción |
 |:------ | :----- | :-- | :---------- |
-| [Registro de Usuarios](#registro-de-usuario) | `POST` | `/api/users/sign_up` | Registro de usuarios en el sistema. |
-| [Verificación de Correo Electronico de Usuarios](#verificación-del-correo-electronico-del-usuario) | `GET` | `/api/users/verify/<str:token_email>` | Verificación del correo electronico del usuario. |
-| [Inicio de Sesión de Usuarios](#inicio-de-sesión-de-usuario) | `POST` | `/api/users/sign_in` | Inicio de sesión de los usuarios en el sistema. |
-| [Cierre de Sesión de Usuarios](#cierre-de-sesión-de-usuario) | `POST` | `/api/users/sign_out` | Cierre de sesión de los usuarios en el sistema. |
-| [Actualización de Usuarios](#actualización-del-usuario) | `PUT` | `/api/users/update_user` | Actualizar la información del perfil del usuario. |
-| [Eliminación de Usuarios](#eliminación-del-usuario) | `DELETE` | `/api/users/delete_user` | Eliminar el usuario actual. |
+| [Registro de usuarios](#registro-de-usuario) | `POST` | `/api/users/sign_up` | Registro de usuarios en el sistema. |
+| [Verificación de correo electrónico del usuario](#verificación-del-correo-electrónico-del-usuario) | `GET` | `/api/users/verify/<str:token_email>` | Verificación del correo electrónico del usuario. |
+| [Inicio de sesión de usuarios](#inicio-de-sesión-de-usuario) | `POST` | `/api/users/sign_in` | Inicio de sesión de los usuarios en el sistema. |
+| [Cierre de sesión de usuarios](#cierre-de-sesión-de-usuario) | `POST` | `/api/users/sign_out` | Cierre de sesión de los usuarios en el sistema. |
+| [Actualización de usuarios](#actualización-del-usuario) | `PUT` | `/api/users/update_user` | Actualizar la información del perfil del usuario. |
+| [Eliminación de usuarios](#eliminación-del-usuario) | `DELETE` | `/api/users/delete_user` | Eliminar el usuario actual. |
 
 #### Registro de usuario
 
@@ -100,8 +101,8 @@ POST /api/users/sign_up
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `username` | `string` | **Requerido**. Nombre del usuario |
-| `email` | `string` | **Requerido**.  Correo electrónico del usuario |
+| `username` | `string` | **Requerido**. Nombre de usuario |
+| `email` | `string` | **Requerido**. Correo electrónico del usuario |
 | `password` | `string` | **Requerido**. Contraseña del usuario |
 
 ##### Ejemplo de solicitud
@@ -119,7 +120,7 @@ Content-Type: application/json
 ##### Ejemplo de respuesta exitosa
 
 ```http
-HTTP/1.1 201 Created
+HTTP/1.1 201 CREATED
 Content-Type: application/json
 
 {
@@ -139,7 +140,7 @@ Content-Type: application/json
 }
 ```
 
-#### Verificación del correo electronico del usuario
+#### Verificación del correo electrónico del usuario
 
 ##### Método HTTP
 
@@ -151,9 +152,9 @@ GET /api/users/verify/<str:token_email>
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token_email` | `string` | **Requerido**.  Token de email de verificación |
+| `token_email` | `string` | **Requerido**. Token de verificación del correo electrónico |
 
-> **NOTA**: El `token_email` lo consigue en la bandeja de mensajes de su correo electronico agregado a la hora de registrarse
+> **NOTA**: El `token_email` se obtiene en la bandeja de entrada del correo electrónico proporcionado al registrarse.
 
 ##### Ejemplo de solicitud
 
@@ -164,7 +165,7 @@ Content-Type: application/json
 ##### Ejemplo de respuesta exitosa
 
 ```http
-HTTP/1.1 200 Ok
+HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
@@ -185,7 +186,7 @@ POST /api/users/sign_in
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `email` | `string` | **Requerido**. Correo electronico del usuario |
+| `email` | `string` | **Requerido**. Correo electrónico del usuario |
 | `password` | `string` | **Requerido**. Contraseña del usuario |
 
 ##### Ejemplo de solicitud
@@ -202,7 +203,7 @@ Content-Type: application/json
 ##### Ejemplo de respuesta exitosa
 
 ```http
-HTTP/1.1 201 Created
+HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
@@ -247,7 +248,7 @@ Authorization: Token <Token>
 ##### Ejemplo de respuesta exitosa
 
 ```http
-HTTP/1.1 200 Ok
+HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
@@ -269,8 +270,8 @@ PUT /api/users/update_user
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
 | `Token` | `string` | **Requerido**. Token de autenticación |
-| `username` | `string` | **Requerido**. Nombre del usuario |
-| `email` | `string` | **Requerido**.  Correo electrónico del usuario |
+| `username` | `string` | **Requerido**. Nombre de usuario |
+| `email` | `string` | **Requerido**. Correo electrónico del usuario |
 | `current_password` | `string` | Contraseña actual del usuario |
 | `new_password` | `string`	| Nueva contraseña del usuario |
 
@@ -291,7 +292,7 @@ Authorization: Token <Token>
 ##### Ejemplo de respuesta exitosa
 
 ```http
-HTTP/1.1 200 Ok
+HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
@@ -336,7 +337,7 @@ Authorization: Token <Token>
 ##### Ejemplo de respuesta exitosa
 
 ```http
-HTTP/1.1 200 Ok
+HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
@@ -344,6 +345,8 @@ Content-Type: application/json
     "message": "User deleted successfully."
 }
 ```
+
+---
 
 ### Encuestas
 
@@ -445,7 +448,7 @@ Authorization: Token <Token>
 ##### Ejemplo de respuesta exitosa
 
 ```http
-HTTP/1.1 200 Ok
+HTTP/1.1 201 CREATED
 Content-Type: application/json
 
 {
@@ -453,16 +456,17 @@ Content-Type: application/json
     "message": "Survey created successfully.",
     "data": {
         "survey": {
+            "id": "74b604fcd9044fbe9afddb735a05e07e",
             "title": "Title of the surveys",
             "description": "Description of the surveys.",
             "start_date": "2024-10-28T01:55:01.828617Z",
             "end_date": "2024-10-29T21:39:50.764361Z",
             "is_public": true,
             "user": {
-                "id": 29,
-                "username": "ropage",
-                "email": "ropage7279@bulatox.com",
-                "date_joined": "2024-10-28T01:10:20.683512Z"
+                "id": 1,
+                "username": "testUsername",
+                "email": "test@email.com",
+                "date_joined": "2024-10-14T00:12:52.125524Z"
             },
             "asks": [
                 {
@@ -529,16 +533,17 @@ Content-Type: application/json
     "message": "Survey successfully obtained.",
     "data": {
         "survey": {
+            "id": "74b604fcd9044fbe9afddb735a05e07e",
             "title": "Title of the surveys",
             "description": "Description of the surveys.",
             "start_date": "2024-10-28T01:55:01.828617Z",
             "end_date": "2024-10-29T21:39:50.764361Z",
             "is_public": true,
             "user": {
-                "id": 29,
-                "username": "ropage",
-                "email": "ropage7279@bulatox.com",
-                "date_joined": "2024-10-28T01:10:20.683512Z"
+                "id": 1,
+                "username": "testUsername",
+                "email": "test@email.com",
+                "date_joined": "2024-10-14T00:12:52.125524Z"
             },
             "asks": [
                 {
@@ -622,16 +627,17 @@ Content-Type: application/json
         },
         "surveys": [
             {
+                "id": "74b604fcd9044fbe9afddb735a05e07e",
                 "title": "Title of the surveys",
                 "description": "Description of the surveys.",
                 "start_date": "2024-10-28T01:55:01.828617Z",
                 "end_date": "2024-10-29T21:39:50.764361Z",
                 "is_public": true,
                 "user": {
-                    "id": 29,
-                    "username": "ropage",
-                    "email": "ropage7279@bulatox.com",
-                    "date_joined": "2024-10-28T01:10:20.683512Z"
+                    "id": 1,
+                    "username": "testUsername",
+                    "email": "test@email.com",
+                    "date_joined": "2024-10-14T00:12:52.125524Z"
                 },
                 "asks": [
                     {
@@ -660,8 +666,7 @@ Content-Type: application/json
                         "options": []
                     }
                 ]
-            },
-            ...
+            }
         ]
     }
 }
@@ -724,16 +729,17 @@ Content-Type: application/json
         },
         "surveys": [
             {
+                "id": "74b604fcd9044fbe9afddb735a05e07e",
                 "title": "Title of the surveys",
                 "description": "Description of the surveys.",
                 "start_date": "2024-10-28T01:55:01.828617Z",
                 "end_date": "2024-10-29T21:39:50.764361Z",
                 "is_public": true,
                 "user": {
-                    "id": 29,
-                    "username": "ropage",
-                    "email": "ropage7279@bulatox.com",
-                    "date_joined": "2024-10-28T01:10:20.683512Z"
+                    "id": 1,
+                    "username": "testUsername",
+                    "email": "test@email.com",
+                    "date_joined": "2024-10-14T00:12:52.125524Z"
                 },
                 "asks": [
                     {
@@ -863,16 +869,17 @@ Content-Type: application/json
     "message": "Survey update successfully.",
     "data": {
         "survey": {
+            "id": "74b604fcd9044fbe9afddb735a05e07e",
             "title": "Title of the surveys",
             "description": "Description of the surveys.",
             "start_date": "2024-10-28T01:55:01.828617Z",
             "end_date": "2024-10-29T21:39:50.764361Z",
             "is_public": true,
             "user": {
-                "id": 29,
-                "username": "ropage",
-                "email": "ropage7279@bulatox.com",
-                "date_joined": "2024-10-28T01:10:20.683512Z"
+                "id": 1,
+                "username": "testUsername",
+                "email": "test@email.com",
+                "date_joined": "2024-10-14T00:12:52.125524Z"
             },
             "asks": [
                 {
@@ -952,7 +959,7 @@ POST /api/surveys/<str:survey_id>/answer
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `answers` | `dict` | **Requerido**. Diccionario con las respuesta de la encuesta  |
 
 **Estructura de `answers`**
@@ -969,7 +976,7 @@ POST /api/surveys/<str:survey_id>/answer
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 
 {
     "answers": [
@@ -1090,7 +1097,7 @@ POST /api/surveys/<str:survey_id>/invite
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `survey_id` | `string` | **Requerido**.  ID de la encuesta |
 | `emails` | `array` | **Requerido**.  Lista con los correos electronicos |
 
@@ -1098,7 +1105,7 @@ POST /api/surveys/<str:survey_id>/invite
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 
 {
   "emails": [
@@ -1127,8 +1134,8 @@ Content-Type: application/json
 |:------ | :----- | :-- | :---------- |
 | [Agregar comentario](#agregar-comentario) | `POST` | `/api/feedbacks/survey/<str:survey_id>/comment/add` | Agregar un comentario a una encuesta. |
 | [Obtener todos los comentarios de una encuesta](#obtener-todos-los-comentarios-de-una-encuesta) | `GET` | `/api/feedbacks/survey/<str:survey_id>/comment/all?page_size=<size_value>&page=<page_value>` | Obtiene todos los comentarios de una encuesta. |
-| [Actualizar un comentario](#actualizar-un-commentario) | `PUT` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/update` | Actualiza un comentario de una encuesta. |
-| [Eliminar un comentario](#eliminar-un-commentario) | `DELETE` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/delete` | Elimina un comentario de una encuesta. |
+| [Actualizar un comentario](#actualizar-un-comentario) | `PUT` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/update` | Actualiza un comentario de una encuesta. |
+| [Eliminar un comentario](#eliminar-un-comentario) | `DELETE` | `/api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/delete` | Elimina un comentario de una encuesta. |
 | [Agregar calificación](#agregar-calificación) | `POST` | `/api/feedbacks/survey/<str:survey_id>/qualify/add` | Agregar una calificación a una encuesta. |
 | [Obtener todos las calificaciones de una encuesta](#obtener-todos-las-calificaciones-de-una-encuesta) | `GET` | `/api/feedbacks/survey/<str:survey_id>/qualify/all?page_size=<size_value>&page=<page_value>` | Obtiene todas las calificaciones de una encuesta. |
 | [Actualizar una calificación](#actualizar-una-calificación) | `PUT` | `/api/feedbacks/survey/<str:survey_id>/qualify/<int:qualify_id>/update` | Actualiza una calificación de una encuesta. |
@@ -1146,24 +1153,24 @@ POST /api/feedbacks/survey/<str:survey_id>/comment/add
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `content` | `string` | **Requerido**.  Contenido del comentario |
 
 ##### Ejemplo de solicitud
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 
 {
-    "content": "La encuesta fue interesante, pero me gustaría que incluyera más preguntas abiertas para poder expresar mejor mi opinión."
+    "content": "The survey was interesting, but I wish it included more open-ended questions so I could express my opinion better."
 }
 ```
 
 ##### Ejemplo de respuesta exitosa
 
 ```http
-HTTP/1.1 200 Ok
+HTTP/1.1 201 CREATED
 Content-Type: application/json
 
 {
@@ -1200,13 +1207,13 @@ GET /api/feedbacks/survey/<str:survey_id>/comment/all?page_size=<size_value>&pag
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
 
 ```http
-HTTP/1.1 200 Ok
+HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
@@ -1224,17 +1231,16 @@ Content-Type: application/json
     "comments": [
       {
         "id": 1,
-        "content": "Me parece una encuesta muy completa y entretenida.",
+        "content": "The survey was interesting, but I wish it included more open-ended questions so I could express my opinion better.",
         "created_at": "2024-11-30T22:02:20.045014Z",
-        "survey": "15f50d59-0482-427c-83d9-a9c72438c17a",
+        "survey": "74b604fcd9044fbe9afddb735a05e07e",
         "user": {
-          "id": 31,
-          "username": "ribavi",
-          "email": "ribavi5414@aleitar.com",
-          "date_joined": "2024-10-28T02:58:52.928663Z"
+            "id": 2,
+            "username": "testUsername2",
+            "email": "test2@email.com",
+            "date_joined": "2024-10-14T00:12:52.125524Z"
         }
-      },
-      ...
+      }
     ]
   }
 }
@@ -1252,7 +1258,7 @@ PUT /api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/update
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `survey_id` | `str` | **Requerido**.  ID de la encuesta |
 | `comment_id` | `int` | **Requerido**.  ID del comentario |
 | `content` | `string` | Contenido del comentario |
@@ -1264,7 +1270,7 @@ Content-Type: application/json
 Authorization: Token <token>
 
 {
-    "content": "La encuesta fue interesante."
+    "content": "The survey was interesting."
 }
 ```
 
@@ -1292,7 +1298,7 @@ DELETE /api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/delete
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `survey_id` | `str` | **Requerido**.  ID de la encuesta |
 | `comment_id` | `int` | **Requerido**.  ID del comentario |
 
@@ -1300,7 +1306,7 @@ DELETE /api/feedbacks/survey/<str:survey_id>/comment/<int:comment_id>/delete
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
@@ -1327,7 +1333,7 @@ POST /api/feedbacks/survey/<str:survey_id>/qualify/add
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `assessment` | `int` | **Requerido**.  Número de la calificación |
 
 > **NOTA**: El parámetro `assessment` solo acepta una escalara de valores de 1 a 5:
@@ -1336,7 +1342,7 @@ POST /api/feedbacks/survey/<str:survey_id>/qualify/add
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 
 {
     "assessment": 3
@@ -1346,7 +1352,7 @@ Authorization: Token <token>
 ##### Ejemplo de respuesta exitosa
 
 ```http
-HTTP/1.1 200 Ok
+HTTP/1.1 201 CREATED
 Content-Type: application/json
 
 {
@@ -1383,7 +1389,7 @@ GET /api/feedbacks/survey/<str:survey_id>/qualify/all?page_size=<size_value>&pag
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
@@ -1408,21 +1414,20 @@ Content-Type: application/json
       {
         "id": 1,
         "assessment": 5,
-        "survey": "e4046be6-5b4e-4782-a1bc-f544527727b4",
+        "survey": "74b604fcd9044fbe9afddb735a05e07e",
         "user": {
-          "id": 31,
-          "username": "ribavi",
-          "email": "ribavi5414@aleitar.com",
-          "date_joined": "2024-10-28T02:58:52.928663Z"
+            "id": 2,
+            "username": "testUsername2",
+            "email": "test2@email.com",
+            "date_joined": "2024-10-14T00:12:52.125524Z"
         }
-      },
-      ...
+      }
     ]
   }
 }
 ```
 
-#### Actualizar un comentario
+#### Actualizar una calificación
 
 ##### Método HTTP
 
@@ -1434,16 +1439,18 @@ PUT /api/feedbacks/survey/<str:survey_id>/qualify/<int:qualify_id>/update
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `survey_id` | `str` | **Requerido**.  ID de la encuesta |
 | `qualify_id` | `int` | **Requerido**.  ID del comentario |
 | `assessmnet` | `int` | Número de la califiación |
+
+> **NOTA**: El parámetro `assessment` solo acepta una escalara de valores de 1 a 5:
 
 ##### Ejemplo de solicitud
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 
 {
     "assessment": 4
@@ -1474,7 +1481,7 @@ DELETE /api/feedbacks/survey/<str:survey_id>/qualify/<int:qualify_id>/delete
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `survey_id` | `str` | **Requerido**.  ID de la encuesta |
 | `qualify_id` | `int` | **Requerido**.  ID de la calificación |
 
@@ -1482,7 +1489,7 @@ DELETE /api/feedbacks/survey/<str:survey_id>/qualify/<int:qualify_id>/delete
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
@@ -1497,7 +1504,9 @@ Content-Type: application/json
 }
 ```
 
-### Analisis
+---
+
+### Análisis
 
 | Nombre | Método | Url | Descripción |
 |:------ | :----- | :-- | :---------- |
@@ -1515,14 +1524,14 @@ GET /api/analysis/survey/<str:survey_id>/export
 
 | Parámetro | Tipo     | Descripción                |
 | :-------- | :------- | :------------------------- |
-| `token` | `string` | **Requerido**.  Token de autenticación |
+| `Token` | `string` | **Requerido**.  Token de autenticación |
 | `survey_id` | `string` | **Requerido**.  ID de la encuesta |
 
 ##### Ejemplo de solicitud
 
 ```http
 Content-Type: application/json
-Authorization: Token <token>
+Authorization: Token <Token>
 ```
 
 ##### Ejemplo de respuesta exitosa
