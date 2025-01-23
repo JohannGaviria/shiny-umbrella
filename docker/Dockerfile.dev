@@ -1,3 +1,4 @@
+# Usa una imagen base oficial de Python
 FROM python:3.12.7-alpine3.20
 
 ENV PYTHONUNBUFFERED=1
@@ -14,4 +15,8 @@ RUN pip install -r requirements.txt
 
 COPY ./ ./
 
-CMD ["sh", "entrypoint.sh"]
+COPY ./docker/entrypoint.dev.sh /app/entrypoint.dev.sh
+
+RUN apk add --no-cache bash
+
+CMD ["sh", "docker/entrypoint.dev.sh"]

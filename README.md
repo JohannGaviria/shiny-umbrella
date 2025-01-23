@@ -23,20 +23,15 @@ Desarrollo de una API REST que permite a los usuarios crear y participar en encu
 
 ```bash
 git clone https://github.com/JohannGaviria/shiny-umbrella.git
+cd shiny-umbrella
 ```
 
 2. **Crea el entorno virtual:**
 
-Utiliza `virtualenv` o cualquier otro gestor de entornos virtuales. Si `virtualenv` no está instalado, puedes instalarlo con:
+Utiliza `venv` o cualquier otro gestor de entornos virtuales. Luego, crea y activa el entorno virtual:
 
 ```bash
-pip install virtualenv
-```
-
-Luego, crea y activa el entorno virtual:
-
-```bash
-python -m virtualenv venv
+python -m venv venv
 # En Windows
 venv\Scripts\activate
 # En Mac/Linux
@@ -45,26 +40,53 @@ source venv/bin/activate
 
 3. **Crea las variables de entorno:**
 - Crea un archivo `.env` en la raíz del proyecto y configura las siguientes variables:
-    - `EMAIL` -> Correo electrónico para el envío de notificaciones por email.
-    - `PASSWORD` -> Contraseña del correo electrónico.
-    - `SECURITY_PASSWORD_SALT` -> Contraseña segura que permitirá al módulo `itsdangerous` generar y verificar tokens de forma segura.
-    - `FRONTEND_URL` -> URL de verificación que se enviará por correo electrónico.
+  - `SECRET_KEY` -> Clave secreta para la configuración de Django.
+  - `DB_NAME` -> Nombre de la base de datos.
+  - `DB_USER` -> Usuario de la base de datos.
+  - `DB_PASSWORD` -> Contraseña del usuario de la base de datos.
+  - `DB_HOST` -> Host de la base de datos.
+  - `DB_PORT` -> Puerto de la base de datos.
+  - `DJANGO_SETTINGS_MODULE` -> Módulo de configuración de Django.
+  - `EMAIL` -> Correo electrónico para el envío de notificaciones por email.
+  - `PASSWORD` -> Contraseña del correo electrónico.
+  - `SECURITY_PASSWORD_SALT` -> Contraseña segura que permitirá al módulo `itsdangerous` generar y verificar tokens de forma segura.
+  - `FRONTEND_URL` -> URL de verificación que se enviará por correo electrónico.
 
-4. **Instalar las dependencias:**
+### Entorno con Docker
+
+**Requisitos:**
+- Docker
+- Docker Compose
+
+1. **Construir y ejecutar los contenedores:**
 
 ```bash
-cd shiny-umbrella
+docker compose -f docker/docker-compose.dev.yml build
+docker compose -f docker/docker-compose.dev.yml up
+```
+
+¡Listo! El proyecto ahora debería estar en funcionamiento en tu entorno con docker. Puedes acceder a él desde tu navegador web visitando `http://0.0.0.0:8000/`.
+
+### Entorno Local
+
+**Requisitos:**
+- Python
+- PostgreSQL
+
+1. **Instalar las dependencias:**
+
+```bash
 pip install -r requirements.txt
 ```
 
-5. **Crea las migraciones:**
+2. **Crea las migraciones:**
 
 ```bash
 python manage.py makemigrations --settings=config.settings.development
 python manage.py migrate --settings=config.settings.development
 ```
 
-6. **Ejecutar el servidor:**
+3. **Ejecutar el servidor:**
 
 ```bash
 python manage.py runserver --settings=config.settings.development
