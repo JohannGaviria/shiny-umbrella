@@ -11,23 +11,39 @@ services:
     volumes:
       - ..:/app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       - DB_HOST=postgres
-      - DB_NAME=postgres
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - SETTINGS_MODULE=config.settings.development
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+    networks:
+      - backend_network
+
   postgres:
     image: postgres:14.3-alpine3.16
+    restart: always
     ports:
       - "5431:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$DB_USER -d $$DB_NAME"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend_network
 
 volumes:
   postgres_data:
+
+networks:
+  backend_network:
+    driver: bridge
