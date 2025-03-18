@@ -11,12 +11,15 @@ API REST para la creación y gestión de encuestas, permitiendo a los usuarios p
 - [Instalación](#instalación)
     - [Entorno con Docker](#entorno-con-docker)
     - [Entorno Local](#entorno-local)
-- [Deploy](#deploy)
+- [API en vivo](#api-en-vivo)
 - [Endpoints](#endpoints)
     - [Usuarios](#usuarios)
     - [Encuestas](#encuestas)
     - [Feedback](#feedback)
     - [Análisis](#análisis)
+- [Ejecutar Tests](#ejecutar-tests)
+    - [Ejecutar tests en un entorno Docker](#ejecutar-tests-en-un-entorno-docker)
+    - [Ejecutar tests en un entorno local](#ejecutar-tests-en-un-entorno-local)
 
 ## Instalación
 
@@ -120,11 +123,11 @@ API REST para la creación y gestión de encuestas, permitiendo a los usuarios p
 
 ---
 
-## Deploy
+## API en vivo
 
 El proyecto está desplegado en Railway, puedes acceder a la API en vivo aquí:
 
-[![Deploy](https://img.shields.io/badge/Deploy%20on%20Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://shiny-umbrella.johanngaviria.dev)
+[![Producción](https://img.shields.io/badge/Production%20on%20Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://shiny-umbrella.johanngaviria.dev)
 
 ---
 
@@ -178,3 +181,37 @@ El proyecto está desplegado en Railway, puedes acceder a la API en vivo aquí:
 | Nombre | Método | URL | Descripción |
 |:------ | :----- | :-- | :---------- |
 | Exportar detalles del análisis | `GET` | `/api/analysis/survey/<str:survey_id>/export` | Exporta los detalles del análisis de una encuesta específica. |
+
+---
+
+## Ejecutar Tests  
+
+### Ejecutar tests en un entorno Docker
+
+- **Ejecutar todos los tests:**  
+  
+  ```bash
+  docker exec -it <id_container> python manage.py test apps --settings=config.settings.development
+  ```
+
+- **Ejecutar un test específico:**  
+  
+  ```bash
+  docker exec -it <id_container> python manage.py test apps.<nombre_módulo>.tests.<nombre_test> --settings=config.settings.development
+  ```  
+
+  Reemplaza `<nombre_módulo>` y `<nombre_test>` con los valores correspondientes.  
+
+### Ejecutar tests en un entorno local
+
+- **Ejecutar todos los tests:**  
+  
+  ```bash
+  python manage.py test apps --settings=config.settings.development
+  ```
+
+- **Ejecutar un test específico:**  
+  ```bash
+  python manage.py test apps.<nombre_módulo>.tests.<nombre_test> --settings=config.settings.development
+  ```
+  Reemplaza `<nombre_módulo>` y `<nombre_test>` con los valores correspondientes.  
