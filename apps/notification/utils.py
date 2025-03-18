@@ -2,8 +2,15 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 
-# Clase para las notificaciones de la API
 class EmailNotification:
+    """
+    Clase para enviar notificaciones por correo electrónico.
+
+    Args:
+        subject (str): Asunto del correo electrónico.
+        message (str): Mensaje del correo electrónico.
+        recipient_list (list): Lista de destinatarios del correo electrónico.
+    """
     def __init__(self, subject, message, recipient_list):
         self.subject = subject
         self.message = message
@@ -14,6 +21,9 @@ class EmailNotification:
     def send(self, fail_silently=False):
         """
         Envía el mensaje al correo electrónico usando los parámetros proporcionados.
+
+        Args:
+            fail_silently (bool): Si se establece en True, suprime las excepciones en caso de error.
         """
         send_mail(
             self.subject,

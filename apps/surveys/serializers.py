@@ -5,24 +5,55 @@ from apps.users.serializers import UserResponseSerializer
 
 
 class OptionSerializer(serializers.ModelSerializer):
+    """
+    Serializador para las opciones de las preguntas.
+    """
     class Meta:
+        """
+        Metadatos del serializador.
+
+        Attributes:
+            model (Option): Modelo de opción.
+            fields (list): Campos del serializador.
+        """
         model = Option
         fields = ['id', 'text']
 
 
 class AksSerializer(serializers.ModelSerializer):
+    """
+    Serializador para las preguntas de las encuestas.
+    """
     options = OptionSerializer(many=True, required=False)
 
     class Meta:
+        """
+        Metadatos del serializador.
+
+        Attributes:
+            model (Ask): Modelo de pregunta.
+            fields (list): Campos del serializador.
+        """
         model = Ask
         fields = ['id', 'text', 'type', 'options']
 
 
 class SurveyValidationSerializer(serializers.ModelSerializer):
+    """
+    Serializador para la validación y creación de encuestas.
+    """
     description = serializers.CharField(min_length=10, required=False)
     asks = AksSerializer(many=True, required=False)
 
     class Meta:
+        """
+        Metadatos del serializador.
+
+        Attributes:
+            model (Survey): Modelo de encuesta.
+            fields (list): Campos del serializador.
+            read_only_fields (list): Campos de solo lectura.
+        """
         model = Survey
         fields = ['title', 'description', 'start_date', 'end_date', 'is_public', 'user', 'asks']
         read_only_fields = ['user']
@@ -31,6 +62,15 @@ class SurveyValidationSerializer(serializers.ModelSerializer):
     def validate_start_date(self, start_date):
         """
         Verifica que start_date no sea una fecha pasada.
+
+        Args:
+            start_date (datetime): Fecha de inicio a validar.
+
+        Returns:
+            datetime: Fecha de inicio validada.
+
+        Raises:
+            serializers.ValidationError: Si la fecha de inicio es una fecha pasada.
         """
         if start_date < timezone.now():
             raise serializers.ValidationError('The start date cannot be a date in the past.')
@@ -39,7 +79,16 @@ class SurveyValidationSerializer(serializers.ModelSerializer):
 
     def validate_end_date(self, end_date):
         """
-        Verifica que end_date sea mayor que start_date
+        Verifica que end_date sea mayor que start_date.
+
+        Args:
+            end_date (datetime): Fecha de finalización a validar.
+
+        Returns:
+            datetime: Fecha de finalización validada.
+
+        Raises:
+            serializers.ValidationError: Si la fecha de finalización no es mayor que la fecha de inicio.
         """
         start_date_field = Survey._meta.get_field('start_date')
         start_date = start_date_field.default() if callable(start_date_field.default) else start_date_field.default
@@ -57,6 +106,15 @@ class SurveyValidationSerializer(serializers.ModelSerializer):
     def validate_asks(self, asks):
         """
         Verifica que las preguntas cumplan con las reglas.
+
+        Args:
+            asks (list): Lista de preguntas a validar.
+
+        Returns:
+            list: Lista de preguntas validadas.
+
+        Raises:
+            serializers.ValidationError: Si alguna pregunta no cumple con las reglas.
         """
         for ask in asks:
             # Validación para preguntas de opción múltiple
@@ -75,7 +133,13 @@ class SurveyValidationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """
-        Crea la encuesta
+        Crea la encuesta.
+
+        Args:
+            validated_data (dict): Datos validados para crear la encuesta.
+
+        Returns:
+            Survey: Encuesta creada.
         """
         # Obtiene el usuario autenticado
         user = self.context['request'].user
@@ -101,6 +165,13 @@ class SurveyValidationSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """
         Actualiza la encuesta.
+
+        Args:
+            instance (Survey): Instancia de la encuesta a actualizar.
+            validated_data (dict): Datos validados para actualizar la encuesta.
+
+        Returns:
+            Survey: Encuesta actualizada.
         """
         # Extrae los datos de las preguntas (asks) del diccionario de datos validados
         asks_data = validated_data.pop('asks', [])
@@ -160,22 +231,54 @@ class SurveyValidationSerializer(serializers.ModelSerializer):
 
 
 class SurveyResponseSerializer(serializers.ModelSerializer):
+    """
+    Serializador para la respuesta de datos de encuesta.
+    """
     user = UserResponseSerializer(read_only=True)
     asks = AksSerializer(many=True, read_only=True)
     options = OptionSerializer(many=True, read_only=True)
 
-
     class Meta:
+        """
+        Metadatos del serializador.
+
+        Attributes:
+            model (Survey): Modelo de encuesta.
+            fields (list): Campos del serializador.
+        """
         model = Survey
         fields = ['id', 'title', 'description', 'start_date', 'end_date', 'is_public', 'user', 'asks', 'options']
 
 
 class AnswerValidationSerializer(serializers.ModelSerializer):
+    """
+    Serializador para la validación y creación de respuestas.
+    """
     class Meta:
+        """
+        Metadatos del serializador.
+
+        Attributes:
+            model (Answer): Modelo de respuesta.
+            fields (list): Campos del serializador.
+        """
         model = Answer
         fields = ['content_answer', 'user', 'ask', 'option']
     
+
     def validate(self, data):
+        """
+        Valida los datos de la respuesta.
+
+        Args:
+            data (dict): Datos a validar.
+
+        Returns:
+            dict: Datos validados.
+
+        Raises:
+            serializers.ValidationError: Si alguna validación falla.
+        """
         # Verificar que la encuesta está activa (start_date <= now <= end_date)
         ask = data.get('ask')
         if ask:
@@ -202,10 +305,20 @@ class AnswerValidationSerializer(serializers.ModelSerializer):
 
 
 class AnswerResponseSerializer(serializers.ModelSerializer):
+    """
+    Serializador para la respuesta de datos de respuesta.
+    """
     user = UserResponseSerializer(read_only=True)
     ask = AksSerializer(read_only=True)
     option = OptionSerializer(read_only=True)
 
     class Meta:
+        """
+        Metadatos del serializador.
+
+        Attributes:
+            model (Answer): Modelo de respuesta.
+            fields (list): Campos del serializador.
+        """
         model = Answer
         fields = ['id', 'user', 'ask', 'content_answer', 'option']
