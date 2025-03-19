@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from apps.surveys.utils import get_survey_by_id
 from apps.core.utils import verify_user_is_creator
-from .utils import *
 
 
 # Endpoint para exportar los detalles del análisis

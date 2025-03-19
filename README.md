@@ -79,7 +79,7 @@ API REST para la creación y gestión de encuestas, permitiendo a los usuarios p
 2. **Construir y ejecutar los contenedores:**
 
     ```bash
-    docker compose -f docker/docker-compose.dev.yml up --build
+    docker compose --env-file .env -f docker/docker-compose.dev.yml up --build
     ```
 
 ¡Listo! El proyecto ahora debería estar en funcionamiento en tu entorno con Docker. Puedes acceder a él desde tu navegador web visitando `http://0.0.0.0:8000/`.
